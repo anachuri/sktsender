@@ -6,7 +6,7 @@
   <object class="GtkApplicationWindow" id="win">
     <property name="default-height">600</property>
     <property name="default-width">800</property>
-    <property name="title" translatable="yes">SktSender</property>
+    <property name="title" translatable="yes">sktsender</property>
     <property name="titlebar">
       <object class="GtkHeaderBar"/>
     </property>

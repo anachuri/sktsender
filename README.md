@@ -1,3 +1,3 @@
 # sktsender
 
-A description of this project.
+Transfiere archivos dentro de tu red local en linux

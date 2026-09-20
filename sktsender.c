@@ -68,7 +68,7 @@ static void grid_activate (GtkGridView *grid, int position, gpointer user_data) 
 }
 
 static void activate_focus (GtkWindow* self,  gpointer user_data){
-  printf("sexo\n");
+  printf("activated\n");
 }
 static void app_activate (GApplication *app, gpointer *user_data) {
   GtkBuilder *builder = gtk_builder_new_from_file ("sktSender.ui");
@@ -76,7 +76,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   GtkWidget *nb = GTK_WIDGET (gtk_builder_get_object (builder, "nb"));
   gtk_window_set_application (GTK_WINDOW (win), GTK_APPLICATION (app));
 
-  GFile *file = g_file_new_for_path ("/home/imaxii");
+  GFile *file = g_file_new_for_path ("/home/anachuri");
   GtkDirectoryList *dl = gtk_directory_list_new ("standard::*", file);
   g_object_unref (file);
   //GtkSingleSelection *model = gtk_single_selection_new (G_LIST_MODEL (dl));
@@ -93,13 +93,16 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   g_object_ref (grid);
   g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
   g_signal_connect (GTK_WINDOW (win), "activate-focus", G_CALLBACK (activate_focus), NULL);
+  g_object_set(gtk_settings_get_default(),
+    "gtk-application-prefer-dark-theme", TRUE,
+    NULL);
   gtk_window_present (GTK_WINDOW (win));
 }
 
 int main (int argc, char **argv) {
   //GtkApplication *app;
   int stat;
-  app = gtk_application_new ("com.github.anachuri.sktSender", G_APPLICATION_DEFAULT_FLAGS);
+  app = gtk_application_new ("com.github.anachuri.sktsender", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (app_activate), NULL);
   stat = g_application_run (G_APPLICATION (app), argc, argv);
   g_object_unref (app);
