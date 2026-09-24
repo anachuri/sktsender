@@ -4,7 +4,11 @@
 GtkApplication *app;
 GtkStack *stack;
 
-static void transfer_activated(GSimpleAction* self,GVariant* parameter,gpointer user_data){
+/*static void transfer_activated(GSimpleAction* self,GVariant* parameter,gpointer user_data){
+  gtk_stack_set_visible_child_name (stack,"2");
+}*/
+
+static void transfer_activated(GSimpleAction* self,gpointer user_data){
   gtk_stack_set_visible_child_name (stack,"2");
 }
 
@@ -16,23 +20,33 @@ static void pressed_cb (GtkGestureClick *gesture,int n_press,double x, double y,
       return;
   printf("%s\n",g_file_info_get_name(file_info));
   
+  /*
   GSimpleAction *act_transfer = g_simple_action_new ("transfer", NULL);
   g_signal_connect (act_transfer, "activate", G_CALLBACK (transfer_activated),G_APPLICATION(app));
   g_action_map_add_action (G_ACTION_MAP (app), G_ACTION (act_transfer));
   g_object_unref (act_transfer);
-  
+  */
   GMenu *menu = g_menu_new();
-  GMenuItem *menu_item_item1 = g_menu_item_new("transfer", "app.transfer");
-  g_menu_append_item(menu, menu_item_item1);
-  g_object_unref(menu_item_item1);
+  GMenuItem *menu_item = g_menu_item_new("transfer", NULL);
+  g_menu_append_item(menu, menu_item);
+  g_object_unref(menu_item);
   // popover menu
-  GtkWidget *popover_menu = gtk_popover_menu_new_from_model_full (G_MENU_MODEL(menu),GTK_POPOVER_MENU_NESTED);
+  GtkWidget *popover_menu = gtk_popover_new();//gtk_popover_menu_new_from_model (G_MENU_MODEL(menu));
   
+  GtkWidget *label = gtk_label_new("transfer");
+  GtkGesture *gesture_click = gtk_gesture_click_new ();
+  gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture_click), GDK_BUTTON_PRIMARY);
+  gtk_widget_add_controller (label, GTK_EVENT_CONTROLLER (gesture_click));
+  g_signal_connect (gesture_click, "pressed", G_CALLBACK (transfer_activated), NULL);
+  
+  
+  gtk_popover_set_child (GTK_POPOVER(popover_menu),label);
   gtk_widget_set_parent(popover_menu,GTK_WIDGET(box));
   
+  //gtk_popover_set_has_arrow (GTK_POPOVER(popover_menu),false);
   gtk_popover_set_pointing_to(GTK_POPOVER(popover_menu), &(const GdkRectangle){x,y,1,1});
-//  gtk_popover_set_autohide(GTK_POPOVER(popover_menu),false);
-  gtk_popover_present(GTK_POPOVER (popover_menu));
+ // gtk_popover_set_default_widget(GTK_POPOVER(popover_menu),box);
+  //gtk_popover_present(GTK_POPOVER (popover_menu));
   gtk_popover_popup(GTK_POPOVER (popover_menu));
 }
 
@@ -71,7 +85,7 @@ static void activate_focus (GtkWindow* self,  gpointer user_data){
   printf("activated\n");
 }
 static void app_activate (GApplication *app, gpointer *user_data) {
-  GtkBuilder *builder = gtk_builder_new_from_file ("sktSender.ui");
+  GtkBuilder *builder = gtk_builder_new_from_file ("sktsender.ui");
   GtkWidget *win = GTK_WIDGET (gtk_builder_get_object (builder, "win"));
   GtkWidget *nb = GTK_WIDGET (gtk_builder_get_object (builder, "nb"));
   gtk_window_set_application (GTK_WINDOW (win), GTK_APPLICATION (app));
@@ -93,9 +107,13 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   g_object_ref (grid);
   g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
   g_signal_connect (GTK_WINDOW (win), "activate-focus", G_CALLBACK (activate_focus), NULL);
-  g_object_set(gtk_settings_get_default(),
-    "gtk-application-prefer-dark-theme", TRUE,
-    NULL);
+  g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
+    
+ //GtkCssProvider *provider = gtk_css_provider_new ();
+//  gtk_css_provider_load_from_string (provider, "popover {background-color: red; padding:0px;}");
+  //gtk_css_provider_load_from_data (provider,"popover.menu context-menu {padding: 0;margin:0;background-color: blue;} ",-1);
+  /* Add CSS to the default GdkDisplay. */
+  //gtk_style_context_add_provider_for_display (gdk_display_get_default (), GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
   gtk_window_present (GTK_WINDOW (win));
 }
 
