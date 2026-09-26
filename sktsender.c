@@ -108,7 +108,8 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
   g_signal_connect (GTK_WINDOW (win), "activate-focus", G_CALLBACK (activate_focus), NULL);
   g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
-    
+  gtk_window_set_default_icon_name ("file-transfer"); 
+  gtk_window_set_icon_name(GTK_WINDOW (win),"file-transfer");
  //GtkCssProvider *provider = gtk_css_provider_new ();
 //  gtk_css_provider_load_from_string (provider, "popover {background-color: red; padding:0px;}");
   //gtk_css_provider_load_from_data (provider,"popover.menu context-menu {padding: 0;margin:0;background-color: blue;} ",-1);
