@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include "resources.c"
 
 //GtkWidget *popover_menu;
 GtkApplication *app;
@@ -85,7 +86,8 @@ static void activate_focus (GtkWindow* self,  gpointer user_data){
   printf("activated\n");
 }
 static void app_activate (GApplication *app, gpointer *user_data) {
-  GtkBuilder *builder = gtk_builder_new_from_file ("sktsender.ui");
+  //GtkBuilder *builder = gtk_builder_new_from_file ("sktsender.ui");
+  GtkBuilder *builder = gtk_builder_new_from_resource("/com/github/anachuri/sktsender/ui/sktsender.ui");
   GtkWidget *win = GTK_WIDGET (gtk_builder_get_object (builder, "win"));
   GtkWidget *nb = GTK_WIDGET (gtk_builder_get_object (builder, "nb"));
   gtk_window_set_application (GTK_WINDOW (win), GTK_APPLICATION (app));
@@ -108,13 +110,34 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
   g_signal_connect (GTK_WINDOW (win), "activate-focus", G_CALLBACK (activate_focus), NULL);
   g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
-  gtk_window_set_default_icon_name ("file-transfer"); 
-  gtk_window_set_icon_name(GTK_WINDOW (win),"file-transfer");
+ 
  //GtkCssProvider *provider = gtk_css_provider_new ();
 //  gtk_css_provider_load_from_string (provider, "popover {background-color: red; padding:0px;}");
   //gtk_css_provider_load_from_data (provider,"popover.menu context-menu {padding: 0;margin:0;background-color: blue;} ",-1);
   /* Add CSS to the default GdkDisplay. */
   //gtk_style_context_add_provider_for_display (gdk_display_get_default (), GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+ // g_resource_load("sktsender.gresource.xml");
+  GtkIconTheme *theme = gtk_icon_theme_get_for_display (gdk_display_get_default());
+  gtk_icon_theme_add_resource_path (theme, "/com/github/anachuri/sktsender/48x48/actions");
+       gchar **icon_names = gtk_icon_theme_get_icon_names(theme);
+
+    // 3. Iterar e imprimir los nombres
+    if (icon_names) {
+        for (int i = 0; icon_names[i] != NULL; i++) {
+            //printf("Icono %d: %s\n", i + 1, icon_names[i]);
+        }
+        // 4. Liberar la memoria del array (propiedad del llamador)
+        g_strfreev(icon_names);
+    } else {
+        printf("No se encontraron iconos o error al obtener el tema.\n");
+    }
+  gtk_window_set_default_icon_name ("skt-sender"); 
+  gtk_window_set_icon_name(GTK_WINDOW (win),"skt-sender");
+  if(gtk_icon_theme_has_icon(theme,"skt-sender")!=1)
+       {
+        printf("sexp\n");
+       }
+  printf("%s\n",gtk_window_get_icon_name(GTK_WINDOW (win)));
   gtk_window_present (GTK_WINDOW (win));
 }
 
