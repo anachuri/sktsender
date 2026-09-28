@@ -1,13 +1,8 @@
 #include <gtk/gtk.h>
 #include "resources.c"
 
-//GtkWidget *popover_menu;
 GtkApplication *app;
 GtkStack *stack;
-
-/*static void transfer_activated(GSimpleAction* self,GVariant* parameter,gpointer user_data){
-  gtk_stack_set_visible_child_name (stack,"2");
-}*/
 
 static void transfer_activated(GSimpleAction* self,gpointer user_data){
   gtk_stack_set_visible_child_name (stack,"2");
@@ -19,35 +14,22 @@ static void pressed_cb (GtkGestureClick *gesture,int n_press,double x, double y,
   GFile *file = G_FILE (g_file_info_get_attribute_object (file_info,"standard::file"));
   if(g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY)
       return;
-  printf("%s\n",g_file_info_get_name(file_info));
-  
   /*
   GSimpleAction *act_transfer = g_simple_action_new ("transfer", NULL);
   g_signal_connect (act_transfer, "activate", G_CALLBACK (transfer_activated),G_APPLICATION(app));
   g_action_map_add_action (G_ACTION_MAP (app), G_ACTION (act_transfer));
   g_object_unref (act_transfer);
   */
-  GMenu *menu = g_menu_new();
-  GMenuItem *menu_item = g_menu_item_new("transfer", NULL);
-  g_menu_append_item(menu, menu_item);
-  g_object_unref(menu_item);
-  // popover menu
   GtkWidget *popover_menu = gtk_popover_new();//gtk_popover_menu_new_from_model (G_MENU_MODEL(menu));
-  
   GtkWidget *label = gtk_label_new("transfer");
   GtkGesture *gesture_click = gtk_gesture_click_new ();
   gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture_click), GDK_BUTTON_PRIMARY);
   gtk_widget_add_controller (label, GTK_EVENT_CONTROLLER (gesture_click));
   g_signal_connect (gesture_click, "pressed", G_CALLBACK (transfer_activated), NULL);
-  
-  
   gtk_popover_set_child (GTK_POPOVER(popover_menu),label);
   gtk_widget_set_parent(popover_menu,GTK_WIDGET(box));
-  
   //gtk_popover_set_has_arrow (GTK_POPOVER(popover_menu),false);
-  gtk_popover_set_pointing_to(GTK_POPOVER(popover_menu), &(const GdkRectangle){x,y,1,1});
- // gtk_popover_set_default_widget(GTK_POPOVER(popover_menu),box);
-  //gtk_popover_present(GTK_POPOVER (popover_menu));
+  gtk_popover_set_pointing_to(GTK_POPOVER(popover_menu), &(const GdkRectangle){x,y,1,1});;
   gtk_popover_popup(GTK_POPOVER (popover_menu));
 }
 
@@ -85,6 +67,7 @@ static void grid_activate (GtkGridView *grid, int position, gpointer user_data) 
 static void activate_focus (GtkWindow* self,  gpointer user_data){
   printf("activated\n");
 }
+
 static void app_activate (GApplication *app, gpointer *user_data) {
   //GtkBuilder *builder = gtk_builder_new_from_file ("sktsender.ui");
   GtkBuilder *builder = gtk_builder_new_from_resource("/com/github/anachuri/sktsender/ui/sktsender.ui");
@@ -116,28 +99,10 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   //gtk_css_provider_load_from_data (provider,"popover.menu context-menu {padding: 0;margin:0;background-color: blue;} ",-1);
   /* Add CSS to the default GdkDisplay. */
   //gtk_style_context_add_provider_for_display (gdk_display_get_default (), GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
- // g_resource_load("sktsender.gresource.xml");
   GtkIconTheme *theme = gtk_icon_theme_get_for_display (gdk_display_get_default());
   gtk_icon_theme_add_resource_path (theme, "/com/github/anachuri/sktsender/48x48/actions");
-       gchar **icon_names = gtk_icon_theme_get_icon_names(theme);
-
-    // 3. Iterar e imprimir los nombres
-    if (icon_names) {
-        for (int i = 0; icon_names[i] != NULL; i++) {
-            //printf("Icono %d: %s\n", i + 1, icon_names[i]);
-        }
-        // 4. Liberar la memoria del array (propiedad del llamador)
-        g_strfreev(icon_names);
-    } else {
-        printf("No se encontraron iconos o error al obtener el tema.\n");
-    }
   gtk_window_set_default_icon_name ("skt-sender"); 
   gtk_window_set_icon_name(GTK_WINDOW (win),"skt-sender");
-  if(gtk_icon_theme_has_icon(theme,"skt-sender")!=1)
-       {
-        printf("sexp\n");
-       }
-  printf("%s\n",gtk_window_get_icon_name(GTK_WINDOW (win)));
   gtk_window_present (GTK_WINDOW (win));
 }
 

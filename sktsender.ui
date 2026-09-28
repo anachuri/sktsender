@@ -32,7 +32,7 @@
                     </child>
                   </object>
                 </property>
-                <property name="icon-name">computer</property>
+                <property name="icon-name">folder-open</property>
                 <property name="name">1</property>
               </object>
             </child>
@@ -43,7 +43,7 @@
                     <property name="label">Empty Page</property>
                   </object>
                 </property>
-                <property name="icon-name">folder-open</property>
+                <property name="icon-name">network-receive-symbolic</property>
                 <property name="name">2</property>
               </object>
             </child>
@@ -54,7 +54,7 @@
                     <property name="label">Empty Page</property>
                   </object>
                 </property>
-                <property name="icon-name">network-receive-symbolic</property>
+                <property name="icon-name">file-received</property>
                 <property name="name">3</property>
               </object>
             </child>
