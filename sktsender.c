@@ -1,7 +1,6 @@
 #include <gtk/gtk.h>
 #include "resources.c"
 
-GtkApplication *app;
 GtkStack *stack;
 
 static void transfer_activated(GSimpleAction* self,gpointer user_data){
@@ -50,7 +49,6 @@ static void bind_listitem_cb (GtkListItemFactory *factory, GtkListItem *list_ite
   GtkImage *image = GTK_IMAGE (gtk_widget_get_first_child(box));
   GtkLabel *label = GTK_LABEL (gtk_widget_get_last_child(box));
   gtk_image_set_from_gicon (GTK_IMAGE (image),g_file_info_get_icon(file_info));
-
   gtk_label_set_label (GTK_LABEL (label), g_file_info_get_name(file_info));
   GtkGesture *gesture = gtk_gesture_click_new ();
   gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture), GDK_BUTTON_SECONDARY);
@@ -107,11 +105,9 @@ static void app_activate (GApplication *app, gpointer *user_data) {
 }
 
 int main (int argc, char **argv) {
-  //GtkApplication *app;
-  int stat;
-  app = gtk_application_new ("com.github.anachuri.sktsender", G_APPLICATION_DEFAULT_FLAGS);
+  GtkApplication *app = gtk_application_new ("com.github.anachuri.sktsender", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect (app, "activate", G_CALLBACK (app_activate), NULL);
-  stat = g_application_run (G_APPLICATION (app), argc, argv);
+  int stat = g_application_run (G_APPLICATION (app), argc, argv);
   g_object_unref (app);
   return stat;
 }

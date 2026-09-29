@@ -3,6 +3,8 @@
   <gresource prefix="/com/github/anachuri/sktsender/48x48/actions">
     <file>48x48/actions/skt-sender.png</file>
     <file>48x48/actions/file-received.png</file>
+    <file>48x48/actions/file-transfer.png</file>
+    <file>48x48/actions/my-directory.png</file>
   </gresource>
   <gresource prefix="/com/github/anachuri/sktsender/ui">
     <file>sktsender.ui</file>
