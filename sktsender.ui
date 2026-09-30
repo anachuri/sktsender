@@ -32,7 +32,7 @@
                     <child>
                       <object class="GtkBox">
                         <child>
-                          <object class="GtkButton">
+                          <object class="GtkButton" id="home">
                             <property name="icon-name">go-home</property>
                           </object>
                         </child>

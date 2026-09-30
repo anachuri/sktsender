@@ -39,7 +39,7 @@ static void pressed_cb (GtkGestureClick *gesture,int n_press,double x, double y,
 }
 
 static void setup_listitem_cb (GtkListItemFactory *factory,GtkListItem *list_item){
-  GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL,20);
+  GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
   GtkWidget *image;
   GtkWidget *label = gtk_label_new(NULL);
   image = gtk_image_new ();
@@ -81,12 +81,15 @@ static void load_grid(const char* path){
   grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
   gtk_grid_view_set_factory (grid, factory);
   gtk_grid_view_set_model (grid, GTK_SELECTION_MODEL (model));
-  //g_object_ref (grid);
-  //g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
+  g_object_ref (grid);
 }
 
 static void activate_focus (GtkWindow* self,  gpointer user_data){
   printf("activated\n");
+}
+
+static void home_clicked (GtkButton* self,gpointer user_data){
+  load_grid(home_dir);
 }
 
 static void app_activate (GApplication *app, gpointer *user_data) {
@@ -100,7 +103,9 @@ static void app_activate (GApplication *app, gpointer *user_data) {
 
   g_signal_connect (GTK_WINDOW (win), "activate-focus", G_CALLBACK (activate_focus), NULL);
   g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
- 
+  
+  GObject *home_button = gtk_builder_get_object (builder, "home");
+  g_signal_connect (GTK_BUTTON (home_button), "clicked", G_CALLBACK (home_clicked), NULL);
  //GtkCssProvider *provider = gtk_css_provider_new ();
 //  gtk_css_provider_load_from_string (provider, "popover {background-color: red; padding:0px;}");
   //gtk_css_provider_load_from_data (provider,"popover.menu context-menu {padding: 0;margin:0;background-color: blue;} ",-1);
