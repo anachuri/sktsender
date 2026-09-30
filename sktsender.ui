@@ -33,17 +33,17 @@
                       <object class="GtkBox">
                         <child>
                           <object class="GtkButton">
-                            <property name="label">home</property>
+                            <property name="icon-name">go-home</property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkButton">
-                            <property name="label">volver</property>
+                            <property name="icon-name">go-previous</property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkButton">
-                            <property name="label">siguiente</property>
+                            <property name="icon-name">go-next</property>
                           </object>
                         </child>
                       </object>

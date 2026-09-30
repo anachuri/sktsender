@@ -1,7 +1,13 @@
 #include <gtk/gtk.h>
 #include "resources.c"
+#include <pwd.h>
+
+static void load_grid(const char* path);
 
 GtkStack *stack;
+GtkBuilder *builder;
+GtkGridView *grid;
+char *home_dir;
 
 static void transfer_activated(GSimpleAction* self,gpointer user_data){
   gtk_stack_set_visible_child_name (stack,"2");
@@ -60,6 +66,23 @@ static void grid_activate (GtkGridView *grid, int position, gpointer user_data) 
   GFileInfo *file_info = G_FILE_INFO (g_list_model_get_item (G_LIST_MODEL (gtk_grid_view_get_model (grid)), position));
   if(g_file_info_get_file_type (file_info) != G_FILE_TYPE_DIRECTORY)
       return;
+  load_grid("/home/anachuri/Documents"); 
+}
+
+static void load_grid(const char* path){
+  GFile *file = g_file_new_for_path (path);
+  GtkDirectoryList *dl = gtk_directory_list_new ("standard::*", file);
+  g_object_unref (file);
+  GtkNoSelection *model = gtk_no_selection_new (G_LIST_MODEL(dl));
+  GtkListItemFactory *factory = gtk_signal_list_item_factory_new ();
+  g_signal_connect (factory, "setup", G_CALLBACK (setup_listitem_cb), NULL);
+  g_signal_connect (factory, "bind", G_CALLBACK (bind_listitem_cb), NULL);
+  
+  grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
+  gtk_grid_view_set_factory (grid, factory);
+  gtk_grid_view_set_model (grid, GTK_SELECTION_MODEL (model));
+  //g_object_ref (grid);
+  //g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
 }
 
 static void activate_focus (GtkWindow* self,  gpointer user_data){
@@ -67,28 +90,14 @@ static void activate_focus (GtkWindow* self,  gpointer user_data){
 }
 
 static void app_activate (GApplication *app, gpointer *user_data) {
-  //GtkBuilder *builder = gtk_builder_new_from_file ("sktsender.ui");
-  GtkBuilder *builder = gtk_builder_new_from_resource("/com/github/anachuri/sktsender/ui/sktsender.ui");
+  home_dir = getpwuid(getuid())->pw_dir;
+  builder = gtk_builder_new_from_resource("/com/github/anachuri/sktsender/ui/sktsender.ui");
+  grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
+  load_grid(home_dir);
   GtkWidget *win = GTK_WIDGET (gtk_builder_get_object (builder, "win"));
-  GtkWidget *nb = GTK_WIDGET (gtk_builder_get_object (builder, "nb"));
   gtk_window_set_application (GTK_WINDOW (win), GTK_APPLICATION (app));
-
-  GFile *file = g_file_new_for_path ("/home/anachuri");
-  GtkDirectoryList *dl = gtk_directory_list_new ("standard::*", file);
-  g_object_unref (file);
-  //GtkSingleSelection *model = gtk_single_selection_new (G_LIST_MODEL (dl));
-  GtkNoSelection *model = gtk_no_selection_new (G_LIST_MODEL(dl));
-  GtkListItemFactory *factory = gtk_signal_list_item_factory_new ();
-  g_signal_connect (factory, "setup", G_CALLBACK (setup_listitem_cb), NULL);
-  g_signal_connect (factory, "bind", G_CALLBACK (bind_listitem_cb), NULL);
-  GtkGridView *grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
-  
-  stack = GTK_STACK(gtk_builder_get_object (builder, "stack"));
-  
-  gtk_grid_view_set_factory (grid, factory);
-  gtk_grid_view_set_model (grid, GTK_SELECTION_MODEL (model));
-  g_object_ref (grid);
   g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
+
   g_signal_connect (GTK_WINDOW (win), "activate-focus", G_CALLBACK (activate_focus), NULL);
   g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
  
