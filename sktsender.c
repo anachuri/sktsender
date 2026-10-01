@@ -1,5 +1,6 @@
 #include <gtk/gtk.h>
 #include "resources.c"
+#include "multicast.c"
 #include <pwd.h>
 
 static void load_grid(const char* path);
@@ -116,6 +117,8 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   gtk_window_set_default_icon_name ("skt-sender"); 
   gtk_window_set_icon_name(GTK_WINDOW (win),"skt-sender");
   gtk_window_present (GTK_WINDOW (win));
+  
+//  join_multicast_async(NULL,NULL,NULL);
 }
 
 int main (int argc, char **argv) {
