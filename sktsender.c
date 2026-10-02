@@ -17,7 +17,7 @@ static void transfer_activated(GSimpleAction* self,gpointer user_data){
 static void pressed_cb (GtkGestureClick *gesture,int n_press,double x, double y,GtkListItem *list_item){  
   GtkWidget *box = gtk_list_item_get_child (list_item);
   GFileInfo *file_info = gtk_list_item_get_item (list_item);
-  GFile *file = G_FILE (g_file_info_get_attribute_object (file_info,"standard::file"));
+  //GFile *file = G_FILE (g_file_info_get_attribute_object (file_info,"standard::file"));
   if(g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY)
       return;
   /*
@@ -44,7 +44,7 @@ static void setup_listitem_cb (GtkListItemFactory *factory,GtkListItem *list_ite
   GtkWidget *image;
   GtkWidget *label = gtk_label_new(NULL);
   image = gtk_image_new ();
-  gtk_image_set_icon_size (GTK_IMAGE (image), GTK_ICON_SIZE_LARGE);
+  gtk_image_set_icon_size (GTK_IMAGE (image), GTK_ICON_SIZE_NORMAL);
   gtk_box_append (GTK_BOX (box), image);
   gtk_box_append (GTK_BOX (box), label);
   gtk_list_item_set_child (list_item, box);
@@ -67,7 +67,7 @@ static void grid_activate (GtkGridView *grid, int position, gpointer user_data) 
   GFileInfo *file_info = G_FILE_INFO (g_list_model_get_item (G_LIST_MODEL (gtk_grid_view_get_model (grid)), position));
   if(g_file_info_get_file_type (file_info) != G_FILE_TYPE_DIRECTORY)
       return;
-  load_grid("/home/anachuri/Documents"); 
+  load_grid(g_file_get_path(G_FILE(g_file_info_get_attribute_object (file_info,"standard::file")))); 
 }
 
 static void load_grid(const char* path){
