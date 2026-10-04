@@ -32,12 +32,12 @@
                     <child>
                       <object class="GtkBox">
                         <child>
-                          <object class="GtkButton">
+                          <object class="GtkButton" id="backward">
                             <property name="icon-name">go-previous</property>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkButton">
+                          <object class="GtkButton" id="forward">
                             <property name="icon-name">go-next</property>
                           </object>
                         </child>

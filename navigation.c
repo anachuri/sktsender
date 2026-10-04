@@ -6,8 +6,8 @@
 
 // Define a structure for the stack
 typedef struct {
-    int arr[MAX_SIZE];  
-    int top;        
+    char *path[MAX_SIZE];  
+    int top;       
 } Stack;
 
 // Function to initialize the stack
@@ -26,33 +26,32 @@ bool is_full(Stack *stack) {
 }
 
 // Function to push an element onto the stack
-void push(Stack *stack, int value) {
-    if (isFull(stack)) {
+void push(Stack *stack, char *value) {
+    if (is_full(stack)) {
         printf("Stack Overflow\n");
         return;
     }
-    stack->arr[++stack->top] = value;
+    stack->path[++stack->top] = value;
     printf("Pushed %d onto the stack\n", value);
 }
 
 // Function to pop an element from the stack
-int pop(Stack *stack) {
-    if (isEmpty(stack)) {
+char* pop(Stack *stack) {
+    if (is_empty(stack)) {
         printf("Stack Underflow\n");
-        return -1;
+        return NULL;
     }
-
-    int popped = stack->arr[stack->top];
+    char *popped = stack->path[stack->top];
     stack->top--;
-    printf("Popped %d from the stack\n", popped);
+    printf("Popped %p from the stack\n", popped);
     return popped;
 }
 
 // Function to peek the top element of the stack
-int peek(Stack *stack) {
-    if (isEmpty(stack)) {
+char* peek(Stack *stack) {
+    if (is_empty(stack)) {
         printf("Stack is empty\n");
-        return -1;
+        return NULL;
     }
-    return stack->arr[stack->top];
+    return stack->path[stack->top];
 }

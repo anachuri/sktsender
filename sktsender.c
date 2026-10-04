@@ -1,7 +1,9 @@
 #include <gtk/gtk.h>
 #include "resources.c"
 #include "multicast.c"
+#include <string.h>
 #include <pwd.h>
+#include "navigation.c"
 
 static void load_grid(const char* path);
 
@@ -9,6 +11,9 @@ GtkStack *stack;
 GtkBuilder *builder;
 GtkGridView *grid;
 char *home_dir;
+Stack backward_stack;
+Stack forward_stack;
+char *current_path = "";
 
 static void transfer_activated(GSimpleAction* self,gpointer user_data){
   gtk_stack_set_visible_child_name (stack,"2");
@@ -66,8 +71,12 @@ static void bind_listitem_cb (GtkListItemFactory *factory, GtkListItem *list_ite
 static void grid_activate (GtkGridView *grid, int position, gpointer user_data) {
   GFileInfo *file_info = G_FILE_INFO (g_list_model_get_item (G_LIST_MODEL (gtk_grid_view_get_model (grid)), position));
   if(g_file_info_get_file_type (file_info) != G_FILE_TYPE_DIRECTORY)
-      return;
-  load_grid(g_file_get_path(G_FILE(g_file_info_get_attribute_object (file_info,"standard::file")))); 
+      return; 
+  char *path = g_file_get_path(G_FILE(g_file_info_get_attribute_object (file_info,"standard::file")));      
+  if (strcmp(current_path,"")!=0)
+      push(&backward_stack,current_path);
+  current_path = path;
+  load_grid(current_path); 
 }
 
 static void load_grid(const char* path){
@@ -85,33 +94,75 @@ static void load_grid(const char* path){
   g_object_ref (grid);
 }
 
-static void activate_focus (GtkWindow* self,  gpointer user_data){
-  printf("activated\n");
-}
-
 static void home_clicked (GtkButton* self,gpointer user_data){
   load_grid(home_dir);
 }
 
+static void forward (GtkButton* self,gpointer user_data){
+  // If current url is the last url
+    if (is_empty(&forward_stack) || strcmp(current_path,peek(&forward_stack))==0) {
+        printf("Not Available\n");
+        return;
+    }
+    // Otherwise
+    else {
+        // Push current state to the
+        // backward stack
+        push(&backward_stack,current_path);
+        // Set current state to top
+        // of forward stack
+        current_path = peek(&forward_stack);
+        // Remove from forward stack
+        pop(&forward_stack);
+        load_grid(current_path);
+    }
+}
+
+static void backward (GtkButton* self,gpointer user_data){
+    if (is_empty(&backward_stack) || strcmp(current_path,peek(&backward_stack))==0) {
+        printf("Not Available\n");
+        return;
+    }
+    // Otherwise
+    else {
+        // Push current url to the
+        // forward stack
+        push(&forward_stack,current_path);
+        // Set current url to top
+        // of backward stack
+        current_path = peek(&backward_stack);
+        // Pop it from backward stack
+        pop(&backward_stack);
+        load_grid(current_path);
+    }
+}
+
 static void app_activate (GApplication *app, gpointer *user_data) {
+  //stack = malloc(sizeof(Stack));
+  initialize(&backward_stack);
+  initialize(&forward_stack);
   home_dir = getpwuid(getuid())->pw_dir;
+  current_path = home_dir;
   builder = gtk_builder_new_from_resource("/com/github/anachuri/sktsender/ui/sktsender.ui");
   grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
   load_grid(home_dir);
+
   GtkWidget *win = GTK_WIDGET (gtk_builder_get_object (builder, "win"));
   gtk_window_set_application (GTK_WINDOW (win), GTK_APPLICATION (app));
   g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
 
-  g_signal_connect (GTK_WINDOW (win), "activate-focus", G_CALLBACK (activate_focus), NULL);
+  //g_signal_connect (GTK_WINDOW (win), "activate-focus", G_CALLBACK (activate_focus), NULL);
   g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
-  
+    
   GObject *home_button = gtk_builder_get_object (builder, "home");
   g_signal_connect (GTK_BUTTON (home_button), "clicked", G_CALLBACK (home_clicked), NULL);
- //GtkCssProvider *provider = gtk_css_provider_new ();
-//  gtk_css_provider_load_from_string (provider, "popover {background-color: red; padding:0px;}");
-  //gtk_css_provider_load_from_data (provider,"popover.menu context-menu {padding: 0;margin:0;background-color: blue;} ",-1);
-  /* Add CSS to the default GdkDisplay. */
-  //gtk_style_context_add_provider_for_display (gdk_display_get_default (), GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  
+  GObject *backward_button = gtk_builder_get_object (builder, "backward");
+  g_signal_connect (GTK_BUTTON (backward_button), "clicked", G_CALLBACK (backward), NULL);
+  
+  GObject *forward_button = gtk_builder_get_object (builder, "forward");
+  g_signal_connect (GTK_BUTTON (forward_button), "clicked", G_CALLBACK (forward), NULL);
+
   GtkIconTheme *theme = gtk_icon_theme_get_for_display (gdk_display_get_default());
   gtk_icon_theme_add_resource_path (theme, "/com/github/anachuri/sktsender/48x48/actions");
   gtk_window_set_default_icon_name ("skt-sender"); 
