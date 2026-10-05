@@ -143,6 +143,15 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   initialize(&forward_stack);
   home_dir = getpwuid(getuid())->pw_dir;
   current_path = home_dir;
+  /*strcpy(recv_dir, home_dir);
+  strncat(recv_dir, "/sktsender_recv/");
+    //std::cout << "fileDir: " << fileDir << std::endl;
+  struct stat st = {0};
+  mkdir(recv_dir, 0777);
+  if (stat(recv_dir, &st) == -1)
+      error("error al crear");
+   */
+  
   builder = gtk_builder_new_from_resource("/com/github/anachuri/sktsender/ui/sktsender.ui");
   grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
   load_grid(home_dir);
@@ -169,7 +178,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   gtk_window_set_icon_name(GTK_WINDOW (win),"skt-sender");
   gtk_window_present (GTK_WINDOW (win));
   
-//  join_multicast_async(NULL,NULL,NULL);
+  //join_multicast_async(NULL,NULL,NULL);
 }
 
 int main (int argc, char **argv) {
