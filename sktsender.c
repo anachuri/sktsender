@@ -4,6 +4,8 @@
 #include <string.h>
 #include <pwd.h>
 #include "navigation.c"
+#include "bind_socket.c"
+//#include "file_receiver.c"
 
 static void load_grid(const char* path);
 
