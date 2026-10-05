@@ -1,5 +1,45 @@
 static int join_multicast (){
-  printf("hi\n");
+    struct sockaddr_in local_sock;
+    struct ip_mreq group;
+    // Create a datagram socket on which to receive.
+    int udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (udp_fd < 0) {
+        perror("opening datagram socket");
+        exit(1);
+    }
+    /*Enable SO_REUSEADDR to allow multiple instances of this application
+    to receive copies of the multicast datagrams.*/
+    {
+        int reuse = 1;
+
+        if (setsockopt(udp_fd, SOL_SOCKET, SO_REUSEADDR, (char *) &reuse, sizeof(reuse)) < 0) {
+            perror("setting SO_REUSEADDR");
+            close(udp_fd);
+            exit(1);
+        }
+    }
+    // Bind to the proper port number with the IP address specified as INADDR_ANY.
+    memset((char *) &local_sock, 0, sizeof(local_sock));
+    local_sock.sin_family = AF_INET;
+    local_sock.sin_port = htons(3000);
+    local_sock.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (bind(udp_fd, (struct sockaddr *) &local_sock, sizeof(local_sock))) {
+        perror("binding datagram socket");
+        close(udp_fd);
+        exit(1);
+    }
+    /* Join the multicast group 225.1.1.1 on the local 9.5.1.1
+   * interface.  Note that this IP_ADD_MEMBERSHIP option must be
+   * called for each local interface over which the multicast
+   * datagrams are to be received.   */
+    group.imr_multiaddr.s_addr = inet_addr("225.1.1.1");
+    group.imr_interface.s_addr = htonl(INADDR_ANY);
+    if (setsockopt(udp_fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *) &group, sizeof(group)) < 0) {
+        perror("adding multicast group");
+        close(udp_fd);
+        exit(1);
+    }
 }
 
 static void join_multicast_thread_cb (GTask         *task,gpointer       source_object,

@@ -1,8 +1,19 @@
 #include <gtk/gtk.h>
 #include "resources.c"
-#include "multicast.c"
 #include <string.h>
 #include <pwd.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <pwd.h>
+#include "join_multicast.c"
 #include "navigation.c"
 #include "bind_socket.c"
 //#include "file_receiver.c"
@@ -180,7 +191,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   gtk_window_set_icon_name(GTK_WINDOW (win),"skt-sender");
   gtk_window_present (GTK_WINDOW (win));
   
-  //join_multicast_async(NULL,NULL,NULL);
+  join_multicast_async(NULL,NULL,NULL);
 }
 
 int main (int argc, char **argv) {
