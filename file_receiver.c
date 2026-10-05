@@ -38,23 +38,5 @@ void receive_file(int client_socket){
     read_file_bytes(client_socket, recv_dir, file_info.file_size);
 }
 
-void init(){
-    int server_socket;
-    struct sockaddr_in serv_addr, cli_addr;
-    server_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_socket < 0)
-        error("ERROR opening socket");
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(3000);
-    if (bind(server_socket, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-        error("ERROR on binding");
-    if (listen(server_socket, 5) < 0)
-        error("Cannot listen on socket!");
-    socklen_t clilen = sizeof(cli_addr);
-    int client_socket = accept(server_socket, (struct sockaddr *) &cli_addr, &clilen);
-    if (client_socket < 0)
-        error("ERROR on accept");
-}
 
 
