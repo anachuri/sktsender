@@ -4,8 +4,8 @@ struct FileInfo {
     char file_name[256];
     int file_size;
 };
-void read_file_bytes(int client_socket, const char recv_dir[256], uintmax_t file_size) {
-    FILE *fp = fopen(recv_dir, "wb");
+void read_file_bytes(int client_socket, const char *file_path, uintmax_t file_size) {
+    FILE *fp = fopen(file_path, "wb");
     if (fp != NULL) {
         size_t read_bytes;
         char buffer[8192];
@@ -34,7 +34,8 @@ void receive_file(int client_socket){
     struct FileInfo file_info;
     if (recv(client_socket, &file_info, sizeof(file_info), 0) < 0)
         error("cannot read file info");
-    strcat(recv_dir, file_info.file_name);
+    char file_path[strlen(recv_dir)]; 
+    //strcat(recv_dir, );
     read_file_bytes(client_socket, recv_dir, file_info.file_size);
 }
 

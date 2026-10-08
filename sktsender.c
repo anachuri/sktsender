@@ -17,7 +17,7 @@
 #include "navigation.c"
 #include "bind_socket.c"
 #include "accept_connection.c"
-//#include "file_receiver.c"
+#include "file_receiver.c"
 
 static void load_grid(const char* path);
 
@@ -60,9 +60,8 @@ static void pressed_cb (GtkGestureClick *gesture,int n_press,double x, double y,
 
 static void setup_listitem_cb (GtkListItemFactory *factory,GtkListItem *list_item){
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
-  GtkWidget *image;
+  GtkWidget *image = gtk_image_new ();
   GtkWidget *label = gtk_label_new(NULL);
-  image = gtk_image_new ();
   gtk_image_set_icon_size (GTK_IMAGE (image), GTK_ICON_SIZE_NORMAL);
   gtk_box_append (GTK_BOX (box), image);
   gtk_box_append (GTK_BOX (box), label);
@@ -101,7 +100,6 @@ static void load_grid(const char* path){
   GtkListItemFactory *factory = gtk_signal_list_item_factory_new ();
   g_signal_connect (factory, "setup", G_CALLBACK (setup_listitem_cb), NULL);
   g_signal_connect (factory, "bind", G_CALLBACK (bind_listitem_cb), NULL);
-  
   grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
   gtk_grid_view_set_factory (grid, factory);
   gtk_grid_view_set_model (grid, GTK_SELECTION_MODEL (model));
@@ -151,25 +149,28 @@ static void backward (GtkButton* self,gpointer user_data){
     }
 }
 
+void toggle_button_callback (GtkWidget *widget, gpointer   data){
+    
+}
+
 static void app_activate (GApplication *app, gpointer *user_data) {
   //stack = malloc(sizeof(Stack));
   initialize(&backward_stack);
   initialize(&forward_stack);
   home_dir = getpwuid(getuid())->pw_dir;
   current_path = home_dir;
-  /*strcpy(recv_dir, home_dir);
-  strncat(recv_dir, "/sktsender_recv/");
+  strcpy(recv_dir, home_dir);
+  strcat(recv_dir, "/sktsender_recv");
     //std::cout << "fileDir: " << fileDir << std::endl;
   struct stat st = {0};
   mkdir(recv_dir, 0777);
   if (stat(recv_dir, &st) == -1)
       error("error al crear");
-   */
-  
   builder = gtk_builder_new_from_resource("/com/github/anachuri/sktsender/ui/sktsender.ui");
   grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
-  load_grid(home_dir);
-
+  stack = GTK_STACK(gtk_builder_get_object (builder, "stack"));
+  
+//  load_grid(home_dir);
   GtkWidget *win = GTK_WIDGET (gtk_builder_get_object (builder, "win"));
   gtk_window_set_application (GTK_WINDOW (win), GTK_APPLICATION (app));
   g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
@@ -192,7 +193,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   gtk_window_set_icon_name(GTK_WINDOW (win),"skt-sender");
   gtk_window_present (GTK_WINDOW (win));
   
-  join_multicast_async(NULL,NULL,NULL);
+  //join_multicast_async(NULL,NULL,NULL);
   accept_connection_async(NULL,NULL,NULL);
 }
 
