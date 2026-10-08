@@ -149,8 +149,12 @@ static void backward (GtkButton* self,gpointer user_data){
     }
 }
 
-void toggle_button_callback (GtkWidget *widget, gpointer   data){
-    
+void toggle_button_callback (GtkToggleButton *source,
+              gpointer         user_data)
+{
+  g_print ("Toggle button is active: %s\n",
+           gtk_button_get_label (GTK_BUTTON (source)), // -Wl,--export-dynamic
+           gtk_toggle_button_get_active (source) ? "Yes" : "No");
 }
 
 static void app_activate (GApplication *app, gpointer *user_data) {

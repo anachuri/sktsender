@@ -41,6 +41,7 @@
                     </child>
                   </object>
                 </property>
+                <signal name="toggled" handler="toggle_button_callback"/>
               </object>
             </child>
             <child>
@@ -62,6 +63,7 @@
                   </object>
                 </property>
                 <property name="group">send_button</property>
+                <signal name="toggled" handler="toggle_button_callback"/>
               </object>
             </child>
             <child>
@@ -83,6 +85,7 @@
                   </object>
                 </property>
                 <property name="group">send_button</property>
+                <signal name="toggled" handler="toggle_button_callback"/>
               </object>
             </child>
           </object>
@@ -91,55 +94,66 @@
           <object class="GtkStack" id="stack">
             <property name="hexpand">True</property>
             <child>
-              <object class="GtkCenterBox">
-                <property name="halign">baseline</property>
-                <property name="margin-bottom">200</property>
-                <property name="margin-end">75</property>
-                <property name="margin-start">75</property>
-                <property name="valign">center</property>
-                <property name="vexpand">True</property>
-                <property name="vexpand-set">True</property>
-                <child type="center">
-                  <object class="GtkButton" id="clipboard_button">
-                    <property name="child">
-                      <object class="GtkBox">
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <object class="GtkImage">
-                            <property name="icon-name">clipboard</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label">clipboard</property>
-                          </object>
-                        </child>
-                      </object>
-                    </property>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="justify">center</property>
+                    <property name="label">start a transfer</property>
                   </object>
                 </child>
-                <child type="end">
-                  <object class="GtkButton">
-                    <property name="label">3</property>
-                  </object>
-                </child>
-                <child type="start">
-                  <object class="GtkButton" id="send_file_button">
-                    <property name="child">
-                      <object class="GtkBox">
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <object class="GtkImage">
-                            <property name="icon-name">send-file2</property>
+                <child>
+                  <object class="GtkCenterBox">
+                    <property name="halign">baseline</property>
+                    <property name="margin-bottom">200</property>
+                    <property name="margin-end">75</property>
+                    <property name="margin-start">75</property>
+                    <property name="valign">center</property>
+                    <property name="vexpand">True</property>
+                    <property name="vexpand-set">True</property>
+                    <child type="center">
+                      <object class="GtkButton" id="clipboard_button">
+                        <property name="child">
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">clipboard</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">clipboard</property>
+                              </object>
+                            </child>
                           </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label">send file</property>
-                          </object>
-                        </child>
+                        </property>
                       </object>
-                    </property>
+                    </child>
+                    <child type="end">
+                      <object class="GtkButton">
+                        <property name="label">3</property>
+                      </object>
+                    </child>
+                    <child type="start">
+                      <object class="GtkButton" id="send_file_button">
+                        <property name="child">
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">send-file2</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label">send file</property>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
