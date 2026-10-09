@@ -8,6 +8,7 @@
     <file>48x48/actions/clipboard.png</file>
     <file>48x48/actions/send-file.png</file>
     <file>48x48/actions/send-file2.png</file>
+    <file>48x48/actions/devices.png</file>
   </gresource>
   <gresource prefix="/com/github/anachuri/sktsender/ui">
     <file>sktsender.ui</file>

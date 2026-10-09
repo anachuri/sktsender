@@ -28,8 +28,14 @@ char *home_dir;
 Stack backward_stack;
 Stack forward_stack;
 char *current_path = "";
+GtkListBox *transfer_list;
 
 static void transfer_activated(GSimpleAction* self,gpointer user_data){
+  GtkWidget* pbar =gtk_progress_bar_new ();
+  gtk_progress_bar_set_text (GTK_PROGRESS_BAR(pbar),"sexofsdfsdfsd");
+  gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pbar),24);
+ // gtk_progress_bar_set_show_text (pbar,"sexo2");
+  gtk_list_box_append (transfer_list,pbar);
   gtk_stack_set_visible_child_name (stack,"2");
 }
 
@@ -150,12 +156,22 @@ static void backward (GtkButton* self,gpointer user_data){
 }
 
 void toggle_button_callback (GtkToggleButton *source,
-              gpointer         user_data)
-{
+              gpointer         user_data){
   g_print ("Toggle button is active: %s\n",
            gtk_button_get_label (GTK_BUTTON (source)), // -Wl,--export-dynamic
            gtk_toggle_button_get_active (source) ? "Yes" : "No");
 }
+
+void send_file_cb (GtkButton *source, gpointer user_data){
+  gtk_stack_set_visible_child_name (stack,"1");
+  load_grid(home_dir);
+}
+
+void clipboard_cb (GtkButton *source, gpointer user_data){
+  
+}
+
+
 
 static void app_activate (GApplication *app, gpointer *user_data) {
   //stack = malloc(sizeof(Stack));
@@ -173,7 +189,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   builder = gtk_builder_new_from_resource("/com/github/anachuri/sktsender/ui/sktsender.ui");
   grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
   stack = GTK_STACK(gtk_builder_get_object (builder, "stack"));
-  
+  transfer_list = GTK_LIST_BOX(gtk_builder_get_object (builder, "transfer_list"));
 //  load_grid(home_dir);
   GtkWidget *win = GTK_WIDGET (gtk_builder_get_object (builder, "win"));
   gtk_window_set_application (GTK_WINDOW (win), GTK_APPLICATION (app));
