@@ -30,16 +30,14 @@ Stack forward_stack;
 char *current_path = "";
 GtkListBox *transfer_list;
 
-
 static void send_file (GtkGestureClick* self,gint n_press,gdouble x,gdouble y,char *file_name){
   GtkWidget *pbar = gtk_progress_bar_new ();
   gtk_progress_bar_set_text (GTK_PROGRESS_BAR(pbar),file_name);
-  //gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pbar),0.66);
   gtk_progress_bar_set_show_text (GTK_PROGRESS_BAR(pbar),true);
   gtk_list_box_append (transfer_list,pbar);
   gtk_stack_set_visible_child_name (stack,"2");
-  //start task 
- }
+  //select a device
+}
 
 static void pressed_cb (GtkGestureClick *gesture,int n_press,double x, double y,GtkListItem *list_item){  
   GtkWidget *box = gtk_list_item_get_child (list_item);
@@ -111,20 +109,12 @@ static void home_clicked (GtkButton* self,gpointer user_data){
 }
 
 static void forward (GtkButton* self,gpointer user_data){
-  // If current url is the last url
     if (is_empty(&forward_stack) || strcmp(current_path,peek(&forward_stack))==0) {
         printf("Not Available\n");
         return;
-    }
-    // Otherwise
-    else {
-        // Push current state to the
-        // backward stack
+    } else {
         push(&backward_stack,current_path);
-        // Set current state to top
-        // of forward stack
         current_path = peek(&forward_stack);
-        // Remove from forward stack
         pop(&forward_stack);
         load_grid(current_path);
     }
@@ -134,16 +124,9 @@ static void backward (GtkButton* self,gpointer user_data){
     if (is_empty(&backward_stack) || strcmp(current_path,peek(&backward_stack))==0) {
         printf("Not Available\n");
         return;
-    }
-    // Otherwise
-    else {
-        // Push current url to the
-        // forward stack
+    } else {
         push(&forward_stack,current_path);
-        // Set current url to top
-        // of backward stack
         current_path = peek(&backward_stack);
-        // Pop it from backward stack
         pop(&backward_stack);
         load_grid(current_path);
     }
@@ -158,8 +141,6 @@ void clipboard_cb (GtkButton *source, gpointer user_data){
   
 }
 
-
-
 static void app_activate (GApplication *app, gpointer *user_data) {
   //stack = malloc(sizeof(Stack));
   initialize(&backward_stack);
@@ -167,12 +148,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   home_dir = getpwuid(getuid())->pw_dir;
   current_path = home_dir;
   strcpy(recv_dir, home_dir);
-  strcat(recv_dir, "/sktsender_recv");
-    //std::cout << "fileDir: " << fileDir << std::endl;
-  struct stat st = {0};
-  mkdir(recv_dir, 0777);
-  if (stat(recv_dir, &st) == -1)
-      error("error al crear");
+  strcat(recv_dir, "/Downloads");
   builder = gtk_builder_new_from_resource("/com/github/anachuri/sktsender/ui/sktsender.ui");
   grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
   stack = GTK_STACK(gtk_builder_get_object (builder, "stack"));
@@ -201,7 +177,8 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   gtk_window_present (GTK_WINDOW (win));
   
   //join_multicast_async(NULL,NULL,NULL);
-  accept_connection_async(NULL,NULL,NULL);
+  //accept_connection_async(NULL,NULL,NULL);
+  //read_file_bytes_async(NULL,NULL,NULL);
 }
 
 int main (int argc, char **argv) {
