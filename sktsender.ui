@@ -41,7 +41,6 @@
                     </child>
                   </object>
                 </property>
-                <signal name="toggled" handler="toggle_button_callback"/>
               </object>
             </child>
             <child>
@@ -63,7 +62,6 @@
                   </object>
                 </property>
                 <property name="group">send_button</property>
-                <signal name="toggled" handler="toggle_button_callback"/>
               </object>
             </child>
             <child>
@@ -85,7 +83,6 @@
                   </object>
                 </property>
                 <property name="group">send_button</property>
-                <signal name="toggled" handler="toggle_button_callback"/>
               </object>
             </child>
           </object>
@@ -128,7 +125,7 @@
                             </child>
                           </object>
                         </property>
-                        <signal name="clicked" handler="send_file_cb"/>
+                        <signal name="clicked" handler="send_file_button_cb"/>
                       </object>
                     </child>
                     <child type="center">
@@ -209,16 +206,7 @@
                 <property name="child">
                   <object class="GtkScrolledWindow">
                     <property name="child">
-                      <object class="GtkListBox" id="transfer_list">
-                        <child>
-                          <object class="GtkProgressBar">
-                            <property name="height-request">8</property>
-                            <property name="orientation">vertical</property>
-                            <property name="vexpand">True</property>
-                            <property name="vexpand-set">True</property>
-                          </object>
-                        </child>
-                      </object>
+                      <object class="GtkListBox" id="transfer_list"/>
                     </property>
                   </object>
                 </property>

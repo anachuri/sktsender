@@ -2,5 +2,5 @@
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
 <!-- Created with Cambalache 1.0.3 -->
 <cambalache-project version="1.0.0" target_tk="gtk-4.0">
-  <ui filename="sktsender.ui" sha256="ffd7043deb4d33c0828bc9d5fc0e94c436f078e71f887add608f1a5ce7d1e570"/>
+  <ui filename="sktsender.ui" sha256="bc23c439fe1014ac5101af75521cd886f4e9749dfc43fb72def3553ae951c62e"/>
 </cambalache-project>

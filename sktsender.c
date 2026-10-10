@@ -30,36 +30,30 @@ Stack forward_stack;
 char *current_path = "";
 GtkListBox *transfer_list;
 
-static void transfer_activated(GSimpleAction* self,gpointer user_data){
-  GtkWidget* pbar =gtk_progress_bar_new ();
-  gtk_progress_bar_set_text (GTK_PROGRESS_BAR(pbar),"sexofsdfsdfsd");
-  gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pbar),24);
- // gtk_progress_bar_set_show_text (pbar,"sexo2");
+
+static void send_file (GtkGestureClick* self,gint n_press,gdouble x,gdouble y,char *file_name){
+  GtkWidget *pbar = gtk_progress_bar_new ();
+  gtk_progress_bar_set_text (GTK_PROGRESS_BAR(pbar),file_name);
+  //gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pbar),0.66);
+  gtk_progress_bar_set_show_text (GTK_PROGRESS_BAR(pbar),true);
   gtk_list_box_append (transfer_list,pbar);
   gtk_stack_set_visible_child_name (stack,"2");
-}
+  //start task 
+ }
 
 static void pressed_cb (GtkGestureClick *gesture,int n_press,double x, double y,GtkListItem *list_item){  
   GtkWidget *box = gtk_list_item_get_child (list_item);
   GFileInfo *file_info = gtk_list_item_get_item (list_item);
-  //GFile *file = G_FILE (g_file_info_get_attribute_object (file_info,"standard::file"));
   if(g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY)
       return;
-  /*
-  GSimpleAction *act_transfer = g_simple_action_new ("transfer", NULL);
-  g_signal_connect (act_transfer, "activate", G_CALLBACK (transfer_activated),G_APPLICATION(app));
-  g_action_map_add_action (G_ACTION_MAP (app), G_ACTION (act_transfer));
-  g_object_unref (act_transfer);
-  */
   GtkWidget *popover_menu = gtk_popover_new();//gtk_popover_menu_new_from_model (G_MENU_MODEL(menu));
   GtkWidget *label = gtk_label_new("transfer");
   GtkGesture *gesture_click = gtk_gesture_click_new ();
   gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture_click), GDK_BUTTON_PRIMARY);
   gtk_widget_add_controller (label, GTK_EVENT_CONTROLLER (gesture_click));
-  g_signal_connect (gesture_click, "pressed", G_CALLBACK (transfer_activated), NULL);
+  g_signal_connect (gesture_click, "pressed", G_CALLBACK (send_file), (char *) g_file_info_get_name(file_info));
   gtk_popover_set_child (GTK_POPOVER(popover_menu),label);
   gtk_widget_set_parent(popover_menu,GTK_WIDGET(box));
-  //gtk_popover_set_has_arrow (GTK_POPOVER(popover_menu),false);
   gtk_popover_set_pointing_to(GTK_POPOVER(popover_menu), &(const GdkRectangle){x,y,1,1});;
   gtk_popover_popup(GTK_POPOVER (popover_menu));
 }
@@ -155,14 +149,7 @@ static void backward (GtkButton* self,gpointer user_data){
     }
 }
 
-void toggle_button_callback (GtkToggleButton *source,
-              gpointer         user_data){
-  g_print ("Toggle button is active: %s\n",
-           gtk_button_get_label (GTK_BUTTON (source)), // -Wl,--export-dynamic
-           gtk_toggle_button_get_active (source) ? "Yes" : "No");
-}
-
-void send_file_cb (GtkButton *source, gpointer user_data){
+void send_file_button_cb (GtkButton *source, gpointer user_data){
   gtk_stack_set_visible_child_name (stack,"1");
   load_grid(home_dir);
 }
