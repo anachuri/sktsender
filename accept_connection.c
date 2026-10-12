@@ -17,18 +17,12 @@ static int accept_connection (){
         error("ERROR on accept");
 }
 
-static void accept_connection_thread_cb (GTask         *task,gpointer       source_object,
-                                  gpointer       task_data,
-                                  GCancellable  *cancellable){
+static void accept_connection_thread_cb (GTask *task,gpointer source_object,gpointer task_data,GCancellable  *cancellable){
   //SomeBlockingFunctionData *data = task_data;
   int retval;
-
   /* Handle cancellation. */
   if (g_task_return_error_if_cancelled (task))
-    {
       return;
-    }
-
   /* Run the blocking function. */
   retval = accept_connection ();
   g_task_return_int (task, retval);
@@ -41,9 +35,7 @@ static void accept_connection_data_free (gpointer *data){
   //g_free (data);
 }
 
-void accept_connection_async ( GCancellable         *cancellable,
-                              GAsyncReadyCallback   callback,
-                              gpointer              user_data){
+void accept_connection_async ( GCancellable  *cancellable,GAsyncReadyCallback callback,gpointer user_data){
   GTask *task = NULL;  /* owned */
   //SomeBlockingFunctionData *data = NULL;  /* owned */
   gpointer *data = NULL;

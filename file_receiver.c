@@ -39,7 +39,7 @@ int read_file_bytes(int client_socket, uintmax_t file_size) {
 }
 
 
-static void read_file_bytes_thread_cb (GTask *task,gpointer source_object,gpointer task_data,GCancellable  *cancellable){
+static void read_file_bytes_thread_cb (GTask *task,gpointer source_object,gpointer task_data,GCancellable *cancellable){
   //SomeBlockingFunctionData *data = task_data;
   int retval;
   /* Handle cancellation. */
