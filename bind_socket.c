@@ -3,7 +3,6 @@ void error(const char *msg) {
     exit(1);
 }
 
-
 static int bind_socket (){
     int server_socket;
     struct sockaddr_in serv_addr, cli_addr;

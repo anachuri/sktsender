@@ -12,19 +12,22 @@ static int accept_connection (){
     if (listen(server_socket, 5) < 0)
         error("Cannot listen on socket!");
     socklen_t clilen = sizeof(cli_addr);
-    int client_socket = accept(server_socket, (struct sockaddr *) &cli_addr, &clilen);
-    if (client_socket < 0)
+    int *client_socket = malloc(sizeof(int));
+    *client_socket = accept(server_socket, (struct sockaddr *) &cli_addr, &clilen);
+    if (*client_socket < 0)
         error("ERROR on accept");
+       printf("%d\n",*client_socket);
+    read_file_async(NULL,NULL,client_socket);
 }
 
-static void accept_connection_thread_cb (GTask *task,gpointer source_object,gpointer task_data,GCancellable  *cancellable){
+static void accept_connection_thread_cb (GTask *task,gpointer source_object,gpointer client_socket,GCancellable  *cancellable){
   //SomeBlockingFunctionData *data = task_data;
   int retval;
   /* Handle cancellation. */
   if (g_task_return_error_if_cancelled (task))
       return;
   /* Run the blocking function. */
-  retval = accept_connection ();
+  retval = accept_connection (client_socket);
   g_task_return_int (task, retval);
 }
 

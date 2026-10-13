@@ -16,8 +16,9 @@
 #include "join_multicast.c"
 #include "navigation.c"
 #include "bind_socket.c"
-#include "accept_connection.c"
 #include "file_receiver.c"
+#include "accept_connection.c"
+
 
 static void load_grid(const char* path);
 
@@ -177,8 +178,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   gtk_window_present (GTK_WINDOW (win));
   
   //join_multicast_async(NULL,NULL,NULL);
-  //accept_connection_async(NULL,NULL,NULL);
-  //read_file_bytes_async(NULL,NULL,NULL);
+  accept_connection_async(NULL,NULL,NULL);
 }
 
 int main (int argc, char **argv) {

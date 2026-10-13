@@ -5,79 +5,103 @@ struct FileInfo {
     int file_size;
 };
 
-int read_file_bytes(int client_socket, uintmax_t file_size) {
+/*FileInfo fileInfo;
+        if (recv(nodeSocket, &fileInfo, sizeof(fileInfo), 0) < 0)
+            error("cannot read file info");
+        char filePath[256];
+        strncpy(filePath, fileDir, strlen(fileDir));
+        filePath[strlen(fileDir)] = '\0';
+        strncat(filePath, fileInfo.fileName, strlen(fileInfo.fileName));
+        if (FILE *fp = fopen(filePath, "wb")) {
+            size_t readBytes;
+            char buffer[8192];
+            while ((readBytes = recv(nodeSocket, buffer, sizeof(buffer), 0)) > 0) {
+                if (fwrite(buffer, 1, readBytes, fp) != readBytes) {
+                    error("error on write");
+                    break;
+                }
+            }
+            fclose(fp);
+        }*/
+
+int read_file(int *client_socket) {
     struct FileInfo file_info;
-    if (recv(client_socket, &file_info, sizeof(file_info), 0) < 0)
+    printf("%d\n",*client_socket);
+    if (recv(*client_socket, &file_info, sizeof(file_info), 0) < 0)
         error("cannot read file info");
-    char file_path[strlen(recv_dir)+strlen(file_info.file_name)+1]; 
+    char file_path[256];//[strlen(recv_dir)+strlen(file_info.file_name)+1]; 
     strcat(file_path,file_info.file_name);
-  
     FILE *fp = fopen(file_path, "wb");
     if (fp != NULL) {
         size_t read_bytes;
         char buffer[8192];
-        printf("file_size: %d\n",file_size);
+        printf("file_size: %d\n",file_info.file_size);
         int s = 0;
-        while ((read_bytes = recv(client_socket, buffer, sizeof(buffer), 0)) > 0) {
+        while ((read_bytes = recv(*client_socket, buffer, sizeof(buffer), 0)) > 0) {
             if (fwrite(buffer, 1, read_bytes, fp) != read_bytes) {
                 printf("error al escribir\n");
                 break;
             }
             s += read_bytes;
-            file_size -= read_bytes;
-            //std::cout << "Received " << readBytes << " bytes" << std::endl;
+            //file_size -= read_bytes;
+            printf("Received %d bytes\n",read_bytes);
             //std::cout << "file size subtracted " << fileSize << std::endl;
         }
         fclose(fp);
         //std::cout << "bytes recibdos " << s << std::endl;
     }
-    if (file_size > 0) {
+    //if (file_size > 0) {
         //std::cout << "error al recibir el archivo,archivo incompleto" << std::endl;
-    } else{}
-        //std::cout << "File transfer complete." << std::endl;
+    //} else{}
+        //std::cout << "File transfer complete." << std::endl; 
   return 0;
 }
 
 
-static void read_file_bytes_thread_cb (GTask *task,gpointer source_object,gpointer task_data,GCancellable *cancellable){
+static void read_file_thread_cb (GTask *task,gpointer source_object,gpointer client_socket,GCancellable *cancellable){
   //SomeBlockingFunctionData *data = task_data;
   int retval;
   /* Handle cancellation. */
   if (g_task_return_error_if_cancelled (task))
       return;
   /* Run the blocking function. */
-  retval = read_file_bytes (1,3); // PARAMETROS INVALIDOS, CAMBIAR
+ 
+  retval = read_file ((int *)client_socket);
   g_task_return_int (task, retval);
 }
 
-static void read_file_bytes_data_free (gpointer *data){
+static void read_file_data_free (gpointer *data){
  // free_param (data->param1);
   //free_param (data->param2);
 
   //g_free (data);
 }
 
-void read_file_bytes_async ( GCancellable *cancellable, GAsyncReadyCallback callback,int *client_socket){
+static void read_file_async (GCancellable *cancellable, GAsyncReadyCallback callback,gpointer client_socket){
+ if(client_socket == NULL) 
+    printf("nulo \n");
+  else
+     printf("%d\n",*((int *) client_socket));
   GTask *task = NULL;  /* owned */
   //SomeBlockingFunctionData *data = NULL;  /* owned */
-  gpointer *data = NULL;
+  gpointer *data = client_socket;
   g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
   task = g_task_new (NULL, cancellable, callback, client_socket);
-  g_task_set_source_tag (task, read_file_bytes_async);
+  g_task_set_source_tag (task, read_file_async);
   /* Cancellation should be handled manually using mechanisms specific to
    * some_blocking_function(). */
   g_task_set_return_on_cancel (task, FALSE);
-  //g_task_set_task_data (task, data, join_multicast_data_free); //investigar porque da error al compilar
+  g_task_set_task_data (task, data, NULL);
   
   /* Run the task in a worker thread and return immediately while that continues
    * in the background. When it’s done it will call @callback in the current
    * thread default main context. */
-  g_task_run_in_thread (task, read_file_bytes_thread_cb);
+  g_task_run_in_thread (task, read_file_thread_cb);
   g_object_unref (task);
 }
 
-int read_file_bytes_finish (GAsyncResult  *result,GError  **error){
-  g_return_val_if_fail (g_task_is_valid (result,read_file_bytes_async), -1);
+int read_file_finish (GAsyncResult  *result,GError  **error){
+  g_return_val_if_fail (g_task_is_valid (result,read_file_async), -1);
   g_return_val_if_fail (error == NULL || *error == NULL, -1);
   return g_task_propagate_int (G_TASK (result), error);
 }
