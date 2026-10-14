@@ -26,11 +26,14 @@ struct FileInfo {
 
 int read_file(int *client_socket) {
     struct FileInfo file_info;
-    printf("%d\n",*client_socket);
     if (recv(*client_socket, &file_info, sizeof(file_info), 0) < 0)
         error("cannot read file info");
+    printf("%s\n",file_info.file_name);
+    printf("%d\n",strlen(file_info.file_name));
     char file_path[256];//[strlen(recv_dir)+strlen(file_info.file_name)+1]; 
+    strcpy(file_path,recv_dir);
     strcat(file_path,file_info.file_name);
+    printf("%s\n",file_path);
     FILE *fp = fopen(file_path, "wb");
     if (fp != NULL) {
         size_t read_bytes;
@@ -44,7 +47,7 @@ int read_file(int *client_socket) {
             }
             s += read_bytes;
             //file_size -= read_bytes;
-            printf("Received %d bytes\n",read_bytes);
+         //   printf("Received %d bytes\n",read_bytes);
             //std::cout << "file size subtracted " << fileSize << std::endl;
         }
         fclose(fp);
@@ -78,10 +81,6 @@ static void read_file_data_free (gpointer *data){
 }
 
 static void read_file_async (GCancellable *cancellable, GAsyncReadyCallback callback,gpointer client_socket){
- if(client_socket == NULL) 
-    printf("nulo \n");
-  else
-     printf("%d\n",*((int *) client_socket));
   GTask *task = NULL;  /* owned */
   //SomeBlockingFunctionData *data = NULL;  /* owned */
   gpointer *data = client_socket;

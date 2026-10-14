@@ -11,7 +11,6 @@ static int join_multicast (){
     to receive copies of the multicast datagrams.*/
     {
         int reuse = 1;
-
         if (setsockopt(udp_fd, SOL_SOCKET, SO_REUSEADDR, (char *) &reuse, sizeof(reuse)) < 0) {
             perror("setting SO_REUSEADDR");
             close(udp_fd);

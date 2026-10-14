@@ -149,7 +149,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   home_dir = getpwuid(getuid())->pw_dir;
   current_path = home_dir;
   strcpy(recv_dir, home_dir);
-  strcat(recv_dir, "/Downloads");
+  strcat(recv_dir, "/Downloads/");
   builder = gtk_builder_new_from_resource("/com/github/anachuri/sktsender/ui/sktsender.ui");
   grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
   stack = GTK_STACK(gtk_builder_get_object (builder, "stack"));

@@ -16,7 +16,6 @@ static int accept_connection (){
     *client_socket = accept(server_socket, (struct sockaddr *) &cli_addr, &clilen);
     if (*client_socket < 0)
         error("ERROR on accept");
-       printf("%d\n",*client_socket);
     read_file_async(NULL,NULL,client_socket);
 }
 
