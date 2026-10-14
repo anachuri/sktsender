@@ -16,7 +16,6 @@ static int accept_connection (){
     *client_socket = accept(server_socket, (struct sockaddr *) &cli_addr, &clilen);
     if (*client_socket < 0)
         error("ERROR on accept");
-    read_file_async(NULL,NULL,client_socket);
 }
 
 static void accept_connection_thread_cb (GTask *task,gpointer source_object,gpointer client_socket,GCancellable  *cancellable){

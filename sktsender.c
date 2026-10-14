@@ -30,6 +30,7 @@ Stack backward_stack;
 Stack forward_stack;
 char *current_path = "";
 GtkListBox *transfer_list;
+GtkWidget *win;
 
 static void send_file (GtkGestureClick* self,gint n_press,gdouble x,gdouble y,char *file_name){
   GtkWidget *pbar = gtk_progress_bar_new ();
@@ -138,6 +139,42 @@ void send_file_button_cb (GtkButton *source, gpointer user_data){
   load_grid(home_dir);
 }
 
+void incoming_transfer_dialog_response_cb (
+  GtkDialog* self,
+  gint response_id,
+  gpointer user_data
+){
+  //read_file_async(NULL,NULL,client_socket);
+}
+
+void show_incoming_transfer_dialog(){
+GtkWidget *dialog, *label, *content_area;
+ GtkDialogFlags flags;
+ // Create the widgets
+ flags = GTK_DIALOG_MODAL;
+ dialog = gtk_dialog_new_with_buttons ("incoming transfer",
+                                      GTK_WINDOW(win),
+                                      flags,
+                                      ("_accept"),
+                                      GTK_RESPONSE_ACCEPT,
+                                      ("_reject"),
+                                      GTK_RESPONSE_REJECT,
+                                      NULL); 
+ content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+ label = gtk_label_new ("do you want to receive a transfer of...?");
+ // Ensure that the dialog box is destroyed when the user responds
+
+ g_signal_connect_swapped (dialog,
+                           "response",
+                           G_CALLBACK (gtk_window_destroy),
+                           dialog);
+
+ // Add the label, and show everything we’ve added
+ gtk_box_append (GTK_BOX (content_area), label);
+ gtk_widget_show (dialog);
+}
+
+
 void clipboard_cb (GtkButton *source, gpointer user_data){
   
 }
@@ -155,7 +192,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   stack = GTK_STACK(gtk_builder_get_object (builder, "stack"));
   transfer_list = GTK_LIST_BOX(gtk_builder_get_object (builder, "transfer_list"));
 //  load_grid(home_dir);
-  GtkWidget *win = GTK_WIDGET (gtk_builder_get_object (builder, "win"));
+  win = GTK_WIDGET (gtk_builder_get_object (builder, "win"));
   gtk_window_set_application (GTK_WINDOW (win), GTK_APPLICATION (app));
   g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
 
@@ -178,7 +215,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   gtk_window_present (GTK_WINDOW (win));
   
   //join_multicast_async(NULL,NULL,NULL);
-  accept_connection_async(NULL,NULL,NULL);
+  accept_connection_async(NULL,show_incoming_transfer_dialog,NULL);
 }
 
 int main (int argc, char **argv) {

@@ -1,4 +1,3 @@
-#include "defines.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -17,6 +16,20 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct FileInfo {
+    char fileName[256];
+    int fileSize;
+};
+
+inline void error(const char *msg) {
+    perror(msg);
+    exit(1);
+}
+
 
 // Source - https://stackoverflow.com/a/32286531
 // Posted by bames53, modified by community. See post 'Timeline' for change history
@@ -49,7 +62,7 @@ int main() {
     if(resp != '0')
         return 1;*/
     char filePath[256];
-    strcpy(filePath, "/home/anachuri/qt-workspace/sktSender/");
+    strcpy(filePath, "/home/anachuri/sktSender-qt/");
     strcat(filePath, fileName);
     std::cout << filePath << std::endl;
     uintmax_t fileSize = getFileSize(filePath);

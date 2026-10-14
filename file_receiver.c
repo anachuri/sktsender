@@ -5,58 +5,25 @@ struct FileInfo {
     int file_size;
 };
 
-/*FileInfo fileInfo;
-        if (recv(nodeSocket, &fileInfo, sizeof(fileInfo), 0) < 0)
-            error("cannot read file info");
-        char filePath[256];
-        strncpy(filePath, fileDir, strlen(fileDir));
-        filePath[strlen(fileDir)] = '\0';
-        strncat(filePath, fileInfo.fileName, strlen(fileInfo.fileName));
-        if (FILE *fp = fopen(filePath, "wb")) {
-            size_t readBytes;
-            char buffer[8192];
-            while ((readBytes = recv(nodeSocket, buffer, sizeof(buffer), 0)) > 0) {
-                if (fwrite(buffer, 1, readBytes, fp) != readBytes) {
-                    error("error on write");
-                    break;
-                }
-            }
-            fclose(fp);
-        }*/
-
 int read_file(int *client_socket) {
     struct FileInfo file_info;
     if (recv(*client_socket, &file_info, sizeof(file_info), 0) < 0)
         error("cannot read file info");
-    printf("%s\n",file_info.file_name);
-    printf("%d\n",strlen(file_info.file_name));
     char file_path[256];//[strlen(recv_dir)+strlen(file_info.file_name)+1]; 
     strcpy(file_path,recv_dir);
     strcat(file_path,file_info.file_name);
-    printf("%s\n",file_path);
     FILE *fp = fopen(file_path, "wb");
     if (fp != NULL) {
         size_t read_bytes;
         char buffer[8192];
-        printf("file_size: %d\n",file_info.file_size);
-        int s = 0;
         while ((read_bytes = recv(*client_socket, buffer, sizeof(buffer), 0)) > 0) {
             if (fwrite(buffer, 1, read_bytes, fp) != read_bytes) {
                 printf("error al escribir\n");
                 break;
             }
-            s += read_bytes;
-            //file_size -= read_bytes;
-         //   printf("Received %d bytes\n",read_bytes);
-            //std::cout << "file size subtracted " << fileSize << std::endl;
         }
         fclose(fp);
-        //std::cout << "bytes recibdos " << s << std::endl;
     }
-    //if (file_size > 0) {
-        //std::cout << "error al recibir el archivo,archivo incompleto" << std::endl;
-    //} else{}
-        //std::cout << "File transfer complete." << std::endl; 
   return 0;
 }
 
