@@ -1,3 +1,5 @@
+
+
 char recv_dir[256];
 
 struct FileInfo {
@@ -5,7 +7,13 @@ struct FileInfo {
     int file_size;
 };
 
+gboolean set_progress_bar_fraction(gpointer fraction){
+ // printf("%f\n",*((double *)fraction));
+  printf("fraction\n");
+}
+
 int read_file(int *client_socket) {
+    double fraction = 0;
     struct FileInfo file_info;
     if (recv(*client_socket, &file_info, sizeof(file_info), 0) < 0)
         error("cannot read file info");
@@ -21,6 +29,9 @@ int read_file(int *client_socket) {
                 printf("error al escribir\n");
                 break;
             }
+            fraction += (double) read_bytes / file_info.file_size;
+            printf("%f\n",fraction);
+            //g_main_context_invoke (g_main_context_default(),set_progress_bar_fraction,&fraction);
         }
         fclose(fp);
     }
@@ -32,6 +43,7 @@ static void read_file_thread_cb (GTask *task,gpointer source_object,gpointer cli
   //SomeBlockingFunctionData *data = task_data;
   int retval;
   /* Handle cancellation. */
+  
   if (g_task_return_error_if_cancelled (task))
       return;
   /* Run the blocking function. */
@@ -56,8 +68,8 @@ static void read_file_async (GCancellable *cancellable, GAsyncReadyCallback call
   g_task_set_source_tag (task, read_file_async);
   /* Cancellation should be handled manually using mechanisms specific to
    * some_blocking_function(). */
-  g_task_set_return_on_cancel (task, FALSE);
-  g_task_set_task_data (task, data, NULL);
+  //g_task_set_return_on_cancel (task, TRUE);
+  g_task_set_task_data (task, data, (GDestroyNotify) read_file_data_free);
   
   /* Run the task in a worker thread and return immediately while that continues
    * in the background. When it’s done it will call @callback in the current

@@ -1,3 +1,8 @@
+void error(const char *msg) {
+    perror(msg);
+    exit(1);
+}
+
 static int join_multicast (){
     struct sockaddr_in local_sock;
     struct ip_mreq group;

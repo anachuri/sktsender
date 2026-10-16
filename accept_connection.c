@@ -1,4 +1,4 @@
-static int accept_connection (){
+static int accept_connection (gpointer user_data){
     int server_socket;
     struct sockaddr_in serv_addr, cli_addr;
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -16,6 +16,8 @@ static int accept_connection (){
     *client_socket = accept(server_socket, (struct sockaddr *) &cli_addr, &clilen);
     if (*client_socket < 0)
         error("ERROR on accept");
+    *((int*)user_data) = *client_socket;
+    return 0;
 }
 
 static void accept_connection_thread_cb (GTask *task,gpointer source_object,gpointer client_socket,GCancellable  *cancellable){
@@ -32,26 +34,20 @@ static void accept_connection_thread_cb (GTask *task,gpointer source_object,gpoi
 static void accept_connection_data_free (gpointer *data){
  // free_param (data->param1);
   //free_param (data->param2);
-
   //g_free (data);
 }
 
-void accept_connection_async ( GCancellable  *cancellable,GAsyncReadyCallback callback,gpointer user_data){
+void accept_connection_async (GCancellable *cancellable,GAsyncReadyCallback callback,gpointer user_data){
   GTask *task = NULL;  /* owned */
   //SomeBlockingFunctionData *data = NULL;  /* owned */
   gpointer *data = NULL;
-
   g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
-
   task = g_task_new (NULL, cancellable, callback, user_data);
   g_task_set_source_tag (task, accept_connection_async);
-
   /* Cancellation should be handled manually using mechanisms specific to
    * some_blocking_function(). */
   g_task_set_return_on_cancel (task, FALSE);
-
-  //g_task_set_task_data (task, data, join_multicast_data_free); //investigar porque da error al compilar
-
+  g_task_set_task_data (task, data, (GDestroyNotify) join_multicast_data_free);
   /* Run the task in a worker thread and return immediately while that continues
    * in the background. When it’s done it will call @callback in the current
    * thread default main context. */
@@ -60,11 +56,8 @@ void accept_connection_async ( GCancellable  *cancellable,GAsyncReadyCallback ca
   g_object_unref (task);
 }
 
-int accept_connection_finish (GAsyncResult  *result,
-                               GError       **error){
-  g_return_val_if_fail (g_task_is_valid (result,
-                                         accept_connection_async), -1);
+int accept_connection_finish (GAsyncResult *result, GError **error){
+  g_return_val_if_fail (g_task_is_valid (result,accept_connection_async), -1);
   g_return_val_if_fail (error == NULL || *error == NULL, -1);
-
   return g_task_propagate_int (G_TASK (result), error);
 }

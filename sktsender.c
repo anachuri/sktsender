@@ -15,10 +15,8 @@
 #include <pwd.h>
 #include "join_multicast.c"
 #include "navigation.c"
-#include "bind_socket.c"
 #include "file_receiver.c"
 #include "accept_connection.c"
-
 
 static void load_grid(const char* path);
 
@@ -148,7 +146,7 @@ void incoming_transfer_dialog_response_cb (
 }
 
 void show_incoming_transfer_dialog(){
-GtkWidget *dialog, *label, *content_area;
+/*GtkWidget *dialog, *label, *content_area;
  GtkDialogFlags flags;
  // Create the widgets
  flags = GTK_DIALOG_MODAL;
@@ -171,7 +169,8 @@ GtkWidget *dialog, *label, *content_area;
 
  // Add the label, and show everything we’ve added
  gtk_box_append (GTK_BOX (content_area), label);
- gtk_widget_show (dialog);
+ gtk_widget_show (dialog);*/
+  read_file_async(NULL,NULL,NULL);
 }
 
 
@@ -215,7 +214,15 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   gtk_window_present (GTK_WINDOW (win));
   
   //join_multicast_async(NULL,NULL,NULL);
-  accept_connection_async(NULL,show_incoming_transfer_dialog,NULL);
+  
+  /*GSource *idle_source = g_idle_source_new ();
+  g_source_set_callback (idle_source, NULL, NULL,NULL);
+  g_source_set_priority (idle_source, G_PRIORITY_DEFAULT);
+  g_source_attach (idle_source, NULL);
+  g_source_unref (idle_source);
+  */
+  int *fd = malloc(sizeof(int));
+  accept_connection_async(NULL,show_incoming_transfer_dialog,fd);
 }
 
 int main (int argc, char **argv) {
