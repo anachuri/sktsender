@@ -23,20 +23,19 @@ static void load_grid(const char* path);
 GtkStack *stack;
 GtkBuilder *builder;
 GtkGridView *grid;
-char *home_dir;
-Stack backward_stack;
-Stack forward_stack;
-char *current_path = "";
 GtkListBox *transfer_list;
 GtkWidget *win;
 
-static void send_file (GtkGestureClick* self,gint n_press,gdouble x,gdouble y,char *file_name){
+static void add_transfer_item(struct FileInfo file_info){
   GtkWidget *pbar = gtk_progress_bar_new ();
-  gtk_progress_bar_set_text (GTK_PROGRESS_BAR(pbar),file_name);
+  gtk_progress_bar_set_text (GTK_PROGRESS_BAR(pbar),file_info.file_name);
   gtk_progress_bar_set_show_text (GTK_PROGRESS_BAR(pbar),true);
   gtk_list_box_append (transfer_list,pbar);
-  gtk_stack_set_visible_child_name (stack,"2");
+}
+
+static void send_file (GtkGestureClick* self,gint n_press,gdouble x,gdouble y,char *file_name){
   //select a device
+  gtk_stack_set_visible_child_name (stack,"2");
 }
 
 static void pressed_cb (GtkGestureClick *gesture,int n_press,double x, double y,GtkListItem *list_item){  
@@ -108,78 +107,38 @@ static void home_clicked (GtkButton* self,gpointer user_data){
   load_grid(home_dir);
 }
 
-static void forward (GtkButton* self,gpointer user_data){
-    if (is_empty(&forward_stack) || strcmp(current_path,peek(&forward_stack))==0) {
-        printf("Not Available\n");
-        return;
-    } else {
-        push(&backward_stack,current_path);
-        current_path = peek(&forward_stack);
-        pop(&forward_stack);
-        load_grid(current_path);
-    }
-}
-
-static void backward (GtkButton* self,gpointer user_data){
-    if (is_empty(&backward_stack) || strcmp(current_path,peek(&backward_stack))==0) {
-        printf("Not Available\n");
-        return;
-    } else {
-        push(&forward_stack,current_path);
-        current_path = peek(&backward_stack);
-        pop(&backward_stack);
-        load_grid(current_path);
-    }
-}
-
 void send_file_button_cb (GtkButton *source, gpointer user_data){
   gtk_stack_set_visible_child_name (stack,"1");
   load_grid(home_dir);
 }
 
-void incoming_transfer_dialog_response_cb (
-  GtkDialog* self,
-  gint response_id,
-  gpointer user_data
-){
-  //read_file_async(NULL,NULL,client_socket);
-}
-
-void show_incoming_transfer_dialog(){
+void show_incoming_transfer_dialog(GObject* source_object,GAsyncResult* res,gpointer data){
 /*GtkWidget *dialog, *label, *content_area;
  GtkDialogFlags flags;
  // Create the widgets
  flags = GTK_DIALOG_MODAL;
- dialog = gtk_dialog_new_with_buttons ("incoming transfer",
-                                      GTK_WINDOW(win),
-                                      flags,
-                                      ("_accept"),
-                                      GTK_RESPONSE_ACCEPT,
-                                      ("_reject"),
-                                      GTK_RESPONSE_REJECT,
-                                      NULL); 
+ dialog = gtk_dialog_new_with_buttons ("incoming transfer", GTK_WINDOW(win),flags, ("_accept"),GTK_RESPONSE_ACCEPT,
+                                      ("_reject"),GTK_RESPONSE_REJECT,NULL); 
  content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
  label = gtk_label_new ("do you want to receive a transfer of...?");
  // Ensure that the dialog box is destroyed when the user responds
-
- g_signal_connect_swapped (dialog,
-                           "response",
-                           G_CALLBACK (gtk_window_destroy),
-                           dialog);
+ g_signal_connect_swapped (dialog,"response",  G_CALLBACK (gtk_window_destroy),dialog);
 
  // Add the label, and show everything we’ve added
  gtk_box_append (GTK_BOX (content_area), label);
  gtk_widget_show (dialog);*/
-  read_file_async(NULL,NULL,NULL);
+  //add_transfer_item();
+  gtk_stack_set_visible_child_name (stack,"2");
+  //read_file_async(NULL,NULL,NULL);
+  int fd = accept_connection_finish(res,NULL);
+  printf("file descriptor: %d\n",fd);
 }
-
 
 void clipboard_cb (GtkButton *source, gpointer user_data){
   
 }
 
 static void app_activate (GApplication *app, gpointer *user_data) {
-  //stack = malloc(sizeof(Stack));
   initialize(&backward_stack);
   initialize(&forward_stack);
   home_dir = getpwuid(getuid())->pw_dir;
@@ -190,23 +149,16 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   grid = GTK_GRID_VIEW(gtk_builder_get_object (builder, "grid"));
   stack = GTK_STACK(gtk_builder_get_object (builder, "stack"));
   transfer_list = GTK_LIST_BOX(gtk_builder_get_object (builder, "transfer_list"));
-//  load_grid(home_dir);
   win = GTK_WIDGET (gtk_builder_get_object (builder, "win"));
   gtk_window_set_application (GTK_WINDOW (win), GTK_APPLICATION (app));
   g_signal_connect (GTK_GRID_VIEW (grid), "activate", G_CALLBACK (grid_activate), NULL);
-
-  //g_signal_connect (GTK_WINDOW (win), "activate-focus", G_CALLBACK (activate_focus), NULL);
-  g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
-    
+  g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL); 
   GObject *home_button = gtk_builder_get_object (builder, "home");
   g_signal_connect (GTK_BUTTON (home_button), "clicked", G_CALLBACK (home_clicked), NULL);
-  
   GObject *backward_button = gtk_builder_get_object (builder, "backward");
   g_signal_connect (GTK_BUTTON (backward_button), "clicked", G_CALLBACK (backward), NULL);
-  
   GObject *forward_button = gtk_builder_get_object (builder, "forward");
   g_signal_connect (GTK_BUTTON (forward_button), "clicked", G_CALLBACK (forward), NULL);
-
   GtkIconTheme *theme = gtk_icon_theme_get_for_display (gdk_display_get_default());
   gtk_icon_theme_add_resource_path (theme, "/com/github/anachuri/sktsender/48x48/actions");
   gtk_window_set_default_icon_name ("skt-sender"); 
@@ -214,15 +166,7 @@ static void app_activate (GApplication *app, gpointer *user_data) {
   gtk_window_present (GTK_WINDOW (win));
   
   //join_multicast_async(NULL,NULL,NULL);
-  
-  /*GSource *idle_source = g_idle_source_new ();
-  g_source_set_callback (idle_source, NULL, NULL,NULL);
-  g_source_set_priority (idle_source, G_PRIORITY_DEFAULT);
-  g_source_attach (idle_source, NULL);
-  g_source_unref (idle_source);
-  */
-  int *fd = malloc(sizeof(int));
-  accept_connection_async(NULL,show_incoming_transfer_dialog,fd);
+  accept_connection_async(NULL,show_incoming_transfer_dialog,NULL);
 }
 
 int main (int argc, char **argv) {

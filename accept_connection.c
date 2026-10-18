@@ -1,4 +1,4 @@
-static int accept_connection (gpointer user_data){
+static int accept_connection (){
     int server_socket;
     struct sockaddr_in serv_addr, cli_addr;
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -12,12 +12,10 @@ static int accept_connection (gpointer user_data){
     if (listen(server_socket, 5) < 0)
         error("Cannot listen on socket!");
     socklen_t clilen = sizeof(cli_addr);
-    int *client_socket = malloc(sizeof(int));
-    *client_socket = accept(server_socket, (struct sockaddr *) &cli_addr, &clilen);
-    if (*client_socket < 0)
+    int client_socket = accept(server_socket, (struct sockaddr *) &cli_addr, &clilen);
+    if (client_socket < 0)
         error("ERROR on accept");
-    *((int*)user_data) = *client_socket;
-    return 0;
+    return client_socket;
 }
 
 static void accept_connection_thread_cb (GTask *task,gpointer source_object,gpointer client_socket,GCancellable  *cancellable){
@@ -57,7 +55,7 @@ void accept_connection_async (GCancellable *cancellable,GAsyncReadyCallback call
 }
 
 int accept_connection_finish (GAsyncResult *result, GError **error){
-  g_return_val_if_fail (g_task_is_valid (result,accept_connection_async), -1);
-  g_return_val_if_fail (error == NULL || *error == NULL, -1);
+  //g_return_val_if_fail (g_task_is_valid (result,accept_connection_async), -1);
+  //g_return_val_if_fail (error == NULL || *error == NULL, -1);
   return g_task_propagate_int (G_TASK (result), error);
 }

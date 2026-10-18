@@ -10,6 +10,14 @@ typedef struct {
     int top;       
 } Stack;
 
+char *home_dir;
+Stack backward_stack;
+Stack forward_stack;
+char *current_path = "";
+static void forward (GtkButton* self,gpointer user_data);
+static void backward (GtkButton* self,gpointer user_data);
+static void load_grid(const char* path);
+
 // Function to initialize the stack
 void initialize(Stack *stack) {
     stack->top = -1;  
@@ -54,4 +62,28 @@ char* peek(Stack *stack) {
         return NULL;
     }
     return stack->path[stack->top];
+}
+
+static void forward (GtkButton* self,gpointer user_data){
+    if (is_empty(&forward_stack) || strcmp(current_path,peek(&forward_stack))==0) {
+        printf("Not Available\n");
+        return;
+    } else {
+        push(&backward_stack,current_path);
+        current_path = peek(&forward_stack);
+        pop(&forward_stack);
+        load_grid(current_path);
+    }
+}
+
+static void backward (GtkButton* self,gpointer user_data){
+    if (is_empty(&backward_stack) || strcmp(current_path,peek(&backward_stack))==0) {
+        printf("Not Available\n");
+        return;
+    } else {
+        push(&forward_stack,current_path);
+        current_path = peek(&backward_stack);
+        pop(&backward_stack);
+        load_grid(current_path);
+    }
 }

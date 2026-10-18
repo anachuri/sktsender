@@ -1,5 +1,4 @@
 
-
 char recv_dir[256];
 
 struct FileInfo {
@@ -10,6 +9,7 @@ struct FileInfo {
 gboolean set_progress_bar_fraction(gpointer fraction){
  // printf("%f\n",*((double *)fraction));
   printf("fraction\n");
+  return false;
 }
 
 int read_file(int *client_socket) {
@@ -55,22 +55,20 @@ static void read_file_thread_cb (GTask *task,gpointer source_object,gpointer cli
 static void read_file_data_free (gpointer *data){
  // free_param (data->param1);
   //free_param (data->param2);
-
   //g_free (data);
 }
 
-static void read_file_async (GCancellable *cancellable, GAsyncReadyCallback callback,gpointer client_socket){
+static void read_file_async (GCancellable *cancellable, GAsyncReadyCallback callback,gpointer user_data){
   GTask *task = NULL;  /* owned */
   //SomeBlockingFunctionData *data = NULL;  /* owned */
-  gpointer *data = client_socket;
+  gpointer *data = NULL;
   g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
-  task = g_task_new (NULL, cancellable, callback, client_socket);
+  task = g_task_new (NULL, cancellable, callback, user_data);
   g_task_set_source_tag (task, read_file_async);
   /* Cancellation should be handled manually using mechanisms specific to
-   * some_blocking_function(). */
+   * some_blocking_function().*/
   //g_task_set_return_on_cancel (task, TRUE);
   g_task_set_task_data (task, data, (GDestroyNotify) read_file_data_free);
-  
   /* Run the task in a worker thread and return immediately while that continues
    * in the background. When it’s done it will call @callback in the current
    * thread default main context. */
