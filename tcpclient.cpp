@@ -21,8 +21,9 @@
 #include <stdlib.h>
 
 struct FileInfo {
-    char fileName[256];
-    int fileSize;
+    char filename[256];
+    char hostname;
+    int filesize;
 };
 
 inline void error(const char *msg) {
@@ -66,27 +67,27 @@ int main() {
     strcat(filePath, fileName);
     std::cout << filePath << std::endl;
     uintmax_t fileSize = getFileSize(filePath);
-    std::cout << fileSize << std::endl;
+    std::cout << "file size: " << fileSize << std::endl;
     FileInfo fileInfo;
-    fileInfo.fileSize = fileSize;
-    strcpy(fileInfo.fileName, fileName);
+    fileInfo.filesize = fileSize;
+    strcpy(fileInfo.filename, fileName);
     char op = '1';
     //send(clientSocket,&op,sizeof(char),0);
     send(clientSocket, &fileInfo, sizeof(fileInfo), 0);
     //    send(clientSocket, &fileSize, sizeof(uintmax_t), 0);
-    //   send(clientSocket, fileName, sizeof(fileName), 0);
+    //   send(clientSocket, filename, sizeof(filename), 0);
 
     if (FILE *fp = fopen(filePath, "rb")) {
-        size_t readBytes;
+        size_t bytesRead;
         char buffer[8192];
         int s = 0;
-        while ((readBytes = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
-            if (send(clientSocket, buffer, readBytes, 0) != readBytes) {
+        while ((bytesRead = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
+            if (send(clientSocket, buffer, bytesRead, 0) != bytesRead) {
                 perror("");
                 //handleErrors();
                 break;
             }
-            s+=readBytes;
+            s+=bytesRead;
         }
         std::cout<<"bytes enviados: "<<s<<std::endl;
         fclose(fp);

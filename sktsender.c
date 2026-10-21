@@ -28,7 +28,7 @@ GtkWidget *win;
 
 static void add_transfer_item(struct FileInfo file_info){
   GtkWidget *pbar = gtk_progress_bar_new ();
-  gtk_progress_bar_set_text (GTK_PROGRESS_BAR(pbar),file_info.file_name);
+  gtk_progress_bar_set_text (GTK_PROGRESS_BAR(pbar),file_info.filename);
   gtk_progress_bar_set_show_text (GTK_PROGRESS_BAR(pbar),true);
   gtk_list_box_append (transfer_list,pbar);
 }
@@ -129,9 +129,10 @@ void show_incoming_transfer_dialog(GObject* source_object,GAsyncResult* res,gpoi
  gtk_widget_show (dialog);*/
   //add_transfer_item();
   gtk_stack_set_visible_child_name (stack,"2");
-  //read_file_async(NULL,NULL,NULL);
   int fd = accept_connection_finish(res,NULL);
-  printf("file descriptor: %d\n",fd);
+  int *client_socket = malloc(sizeof(int));
+  *client_socket = fd;
+  read_file_async(NULL,NULL,client_socket);
 }
 
 void clipboard_cb (GtkButton *source, gpointer user_data){
