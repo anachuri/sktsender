@@ -22,8 +22,10 @@
 
 struct FileInfo {
     char filename[256];
-    char hostname;
+    char hostname[256];
     int filesize;
+    int socket;
+    void *pbar;
 };
 
 inline void error(const char *msg) {

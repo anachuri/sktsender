@@ -1,52 +1,44 @@
-
 char recv_dir[256];
-
 struct FileInfo {
     char filename[256];
-    char hostname;
+    char hostname[256];
     int filesize;
+    int socket;
+    void *pbar;
+    double fraction;
 };
 
-gboolean set_progress_bar_fraction(gpointer fraction){
- // printf("%f\n",*((double *)fraction));
+gboolean set_progress_bar_fraction(gpointer data){
+  gtk_progress_bar_set_fraction(((struct FileInfo*) data)->pbar,((struct FileInfo*) data)->fraction);
   return false;
 }
 
-int read_file(int client_socket) {
-    float fraction = 0;
-    struct FileInfo file_info;
-    if (recv(client_socket, &file_info, sizeof(file_info), 0) < 0)
-        error("cannot read file info");
-    printf("file size : %d\n",file_info.filesize);
+int read_file(struct FileInfo *file_info) {
     char file_path[256];//[strlen(recv_dir)+strlen(file_info.file_name)+1]; 
     strcpy(file_path,recv_dir);
-    strcat(file_path,file_info.filename);
+    strcat(file_path,file_info->filename);
     FILE *fp = fopen(file_path, "wb");
+    file_info->fraction = 0;
     if (fp != NULL) {
         size_t bytes_read;
-        int nros=0;
         char buffer[8192];
-        while ((bytes_read = recv(client_socket, buffer, sizeof(buffer), 0)) > 0) {
+        while ((bytes_read = recv(file_info->socket, buffer, sizeof(buffer), 0)) > 0) {
             if (fwrite(buffer, 1, bytes_read, fp) != bytes_read) {
                 printf("error al escribir\n");
                 break;
             }
-            nros++;
-            fraction += (float) bytes_read / file_info.filesize;
-            printf("read bytes: %f /  filesize: %d\n",bytes_read,file_info.filesize);
-            printf("fraction : %f\n",fraction);
-            //printf("%f\n",fraction);
-            //g_main_context_invoke (g_main_context_default(),set_progress_bar_fraction,&fraction);
+            file_info->fraction += (double) bytes_read / file_info->filesize;
+            printf("%f\n",file_info->fraction);
+            g_main_context_invoke (g_main_context_default(),set_progress_bar_fraction,file_info);
         }
-        printf("bytes : %d\n",nros*8192);
         fclose(fp);
-        close(client_socket);
+        close(file_info->socket);
     }
   return 0;
 }
 
 
-static void read_file_thread_cb (GTask *task,gpointer source_object,gpointer client_socket,GCancellable *cancellable){
+static void read_file_thread_cb (GTask *task,gpointer source_object,gpointer data,GCancellable *cancellable){
   //SomeBlockingFunctionData *data = task_data;
   int retval;
   /* Handle cancellation. */
@@ -54,7 +46,7 @@ static void read_file_thread_cb (GTask *task,gpointer source_object,gpointer cli
   if (g_task_return_error_if_cancelled (task))
       return;
   /* Run the blocking function. */
-  retval = read_file (*((int *)client_socket));
+  retval = read_file (data);
   g_task_return_int (task, retval);
 }
 

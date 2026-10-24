@@ -1,7 +1,7 @@
-static int accept_connection (){
-    int server_socket;
+static struct FileInfo *accept_connection (){
     struct sockaddr_in serv_addr, cli_addr;
-    server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    struct FileInfo *file_info;
+    int server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0)
         error("ERROR opening socket");
     serv_addr.sin_family = AF_INET;
@@ -15,18 +15,25 @@ static int accept_connection (){
     int client_socket = accept(server_socket, (struct sockaddr *) &cli_addr, &clilen);
     if (client_socket < 0)
         error("ERROR on accept");
-    return client_socket;
+    file_info = malloc(sizeof(struct FileInfo));
+    if(file_info == NULL) 
+      error("ERROR on allocate memory");
+    if (recv(client_socket,file_info, sizeof(struct FileInfo), 0) < 0)
+        error("cannot read file info");
+    file_info->socket = client_socket;
+    printf("file size : %d\n",file_info->filesize);
+    return file_info;
 }
 
 static void accept_connection_thread_cb (GTask *task,gpointer source_object,gpointer client_socket,GCancellable  *cancellable){
   //SomeBlockingFunctionData *data = task_data;
-  int retval;
+  struct FileInfo *retval;
   /* Handle cancellation. */
   if (g_task_return_error_if_cancelled (task))
       return;
   /* Run the blocking function. */
   retval = accept_connection (client_socket);
-  g_task_return_int (task, retval);
+  g_task_return_pointer (task, retval,NULL);
 }
 
 static void accept_connection_data_free (gpointer *data){
@@ -54,8 +61,8 @@ void accept_connection_async (GCancellable *cancellable,GAsyncReadyCallback call
   g_object_unref (task);
 }
 
-int accept_connection_finish (GAsyncResult *result, GError **error){
+gpointer accept_connection_finish (GAsyncResult *result, GError **error){
   //g_return_val_if_fail (g_task_is_valid (result,accept_connection_async), -1);
   //g_return_val_if_fail (error == NULL || *error == NULL, -1);
-  return g_task_propagate_int (G_TASK (result), error);
+  return g_task_propagate_pointer (G_TASK (result), error);
 }

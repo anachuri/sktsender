@@ -26,11 +26,12 @@ GtkGridView *grid;
 GtkListBox *transfer_list;
 GtkWidget *win;
 
-static void add_transfer_item(struct FileInfo file_info){
+static GtkProgressBar *add_transfer_item(char *filename){
   GtkWidget *pbar = gtk_progress_bar_new ();
-  gtk_progress_bar_set_text (GTK_PROGRESS_BAR(pbar),file_info.filename);
+  gtk_progress_bar_set_text (GTK_PROGRESS_BAR(pbar),filename);
   gtk_progress_bar_set_show_text (GTK_PROGRESS_BAR(pbar),true);
   gtk_list_box_append (transfer_list,pbar);
+  return GTK_PROGRESS_BAR(pbar);
 }
 
 static void send_file (GtkGestureClick* self,gint n_press,gdouble x,gdouble y,char *file_name){
@@ -127,12 +128,10 @@ void show_incoming_transfer_dialog(GObject* source_object,GAsyncResult* res,gpoi
  // Add the label, and show everything we’ve added
  gtk_box_append (GTK_BOX (content_area), label);
  gtk_widget_show (dialog);*/
-  //add_transfer_item();
   gtk_stack_set_visible_child_name (stack,"2");
-  int fd = accept_connection_finish(res,NULL);
-  int *client_socket = malloc(sizeof(int));
-  *client_socket = fd;
-  read_file_async(NULL,NULL,client_socket);
+  struct FileInfo *file_info = accept_connection_finish(res,NULL);
+  file_info->pbar = add_transfer_item(file_info->filename);
+  read_file_async(NULL,NULL,file_info);
 }
 
 void clipboard_cb (GtkButton *source, gpointer user_data){
