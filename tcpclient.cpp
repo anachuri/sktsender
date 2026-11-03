@@ -26,6 +26,7 @@ struct FileInfo {
     int filesize;
     int socket;
     void *pbar;
+    double fraction;
 };
 
 inline void error(const char *msg) {
@@ -45,10 +46,7 @@ uintmax_t getFileSize(const char* filename) {
 }
 
 int main() {
-    char fileName[] = "cvi2.pdf";
-    //char fileName[] = "image.png";
-    //char fileName[] = "mdiscretas.pdf";
-
+    char fileName[] = "cv.pdf";
     std::cout << "client started" << std::endl;
     // creating socket
     int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -65,7 +63,7 @@ int main() {
     if(resp != '0')
         return 1;*/
     char filePath[256];
-    strcpy(filePath, "/home/anachuri/sktSender-qt/");
+    strcpy(filePath, "/home/anachuri/Documents/");
     strcat(filePath, fileName);
     std::cout << filePath << std::endl;
     uintmax_t fileSize = getFileSize(filePath);
@@ -73,13 +71,16 @@ int main() {
     FileInfo fileInfo;
     fileInfo.filesize = fileSize;
     strcpy(fileInfo.filename, fileName);
-    char op = '1';
     //send(clientSocket,&op,sizeof(char),0);
     send(clientSocket, &fileInfo, sizeof(fileInfo), 0);
     //    send(clientSocket, &fileSize, sizeof(uintmax_t), 0);
     //   send(clientSocket, filename, sizeof(filename), 0);
-
-    if (FILE *fp = fopen(filePath, "rb")) {
+    char resp;
+     if (recv(clientSocket, &resp, sizeof(char), 0)<0){
+      std::cout<<"cannot read response"<<std::endl;
+     }      
+    if (resp == '1'){
+      if (FILE *fp = fopen(filePath, "rb")) {
         size_t bytesRead;
         char buffer[8192];
         int s = 0;
@@ -94,7 +95,7 @@ int main() {
         std::cout<<"bytes enviados: "<<s<<std::endl;
         fclose(fp);
         // closing socket
-        close(clientSocket);
-    }
+    }}
+    close(clientSocket);
     return 0;
 }

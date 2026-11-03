@@ -74,7 +74,7 @@ static void read_file_async (GCancellable *cancellable, GAsyncReadyCallback call
   g_object_unref (task);
 }
 
-int read_file_finish (GAsyncResult  *result,GError  **error){
+int read_file_finish (GAsyncResult *result,GError  **error){
   g_return_val_if_fail (g_task_is_valid (result,read_file_async), -1);
   g_return_val_if_fail (error == NULL || *error == NULL, -1);
   return g_task_propagate_int (G_TASK (result), error);

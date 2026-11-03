@@ -1,3 +1,8 @@
+void accept_file_transfer(int socket){
+   char resp = '1';
+   send(socket, &resp, sizeof(char), 0);
+}
+
 static struct FileInfo *accept_connection (){
     struct sockaddr_in serv_addr, cli_addr;
     struct FileInfo *file_info;
@@ -22,6 +27,7 @@ static struct FileInfo *accept_connection (){
         error("cannot read file info");
     file_info->socket = client_socket;
     printf("file size : %d\n",file_info->filesize);
+    printf("file name : %s\n",file_info->filename);
     return file_info;
 }
 
@@ -62,7 +68,7 @@ void accept_connection_async (GCancellable *cancellable,GAsyncReadyCallback call
 }
 
 gpointer accept_connection_finish (GAsyncResult *result, GError **error){
-  //g_return_val_if_fail (g_task_is_valid (result,accept_connection_async), -1);
-  //g_return_val_if_fail (error == NULL || *error == NULL, -1);
+//  g_return_val_if_fail (g_task_is_valid (result,accept_connection_async), error);
+//g_return_val_if_fail (error == NULL || *error == NULL, error);
   return g_task_propagate_pointer (G_TASK (result), error);
 }

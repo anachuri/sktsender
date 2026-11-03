@@ -113,25 +113,34 @@ void send_file_button_cb (GtkButton *source, gpointer user_data){
   load_grid(home_dir);
 }
 
+void response_cb (GtkDialog* self, gint response_id,struct FileInfo *file_info){
+  printf("%d\n",response_id);
+  if(response_id == -2){
+    gtk_window_destroy(GTK_WINDOW(self));
+    return;
+  }
+  gtk_stack_set_visible_child_name (stack,"2");
+  file_info->pbar = add_transfer_item(file_info->filename);
+  accept_file_transfer(file_info->socket);
+  read_file_async(NULL,NULL,file_info);
+  gtk_window_destroy(GTK_WINDOW(self));
+ // free(file_info);
+}
+
 void show_incoming_transfer_dialog(GObject* source_object,GAsyncResult* res,gpointer data){
-/*GtkWidget *dialog, *label, *content_area;
+GtkWidget *dialog, *label, *content_area;
  GtkDialogFlags flags;
  // Create the widgets
  flags = GTK_DIALOG_MODAL;
- dialog = gtk_dialog_new_with_buttons ("incoming transfer", GTK_WINDOW(win),flags, ("_accept"),GTK_RESPONSE_ACCEPT,
-                                      ("_reject"),GTK_RESPONSE_REJECT,NULL); 
+ dialog = gtk_dialog_new_with_buttons ("incoming transfer", GTK_WINDOW(win),flags, ("_accept"),GTK_RESPONSE_ACCEPT,("_ reject"),GTK_RESPONSE_REJECT,NULL); 
  content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
  label = gtk_label_new ("do you want to receive a transfer of...?");
  // Ensure that the dialog box is destroyed when the user responds
- g_signal_connect_swapped (dialog,"response",  G_CALLBACK (gtk_window_destroy),dialog);
-
  // Add the label, and show everything we’ve added
  gtk_box_append (GTK_BOX (content_area), label);
- gtk_widget_show (dialog);*/
-  gtk_stack_set_visible_child_name (stack,"2");
-  struct FileInfo *file_info = accept_connection_finish(res,NULL);
-  file_info->pbar = add_transfer_item(file_info->filename);
-  read_file_async(NULL,NULL,file_info);
+ struct FileInfo *file_info = accept_connection_finish(res,NULL);
+ g_signal_connect (GTK_DIALOG(dialog),"response",  G_CALLBACK (response_cb),file_info);
+ gtk_widget_show (dialog);
 }
 
 void clipboard_cb (GtkButton *source, gpointer user_data){
